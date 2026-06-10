@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AETHORIA Companion v0.96 · Docker/Ollama</title>
+<title>AETHORIA Companion v0.97 · Kampagnenwelt</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
 
@@ -693,7 +693,7 @@
 <header id="app-header">
   <div>
     <h1>AETHORIA</h1>
-    <div class="version">COMPANION v0.96 · KANON v0.96 · OLLAMA · WELTGEDÄCHTNIS</div>
+    <div class="version">COMPANION v0.97 · KANON v0.96 · OLLAMA · KAMPAGNENWELT</div>
   </div>
   <div id="round-display">Runde — / 10</div>
 </header>
@@ -701,6 +701,7 @@
 <!-- NAV -->
 <nav id="nav-tabs">
   <button class="nav-tab active" onclick="showView('setup')">⚙ Setup</button>
+  <button class="nav-tab" onclick="showView('campaign')">🏰 Kampagne</button>
   <button class="nav-tab" onclick="showView('dashboard')">◈ Dashboard</button>
   <button class="nav-tab" onclick="showView('players')">♟ Spieler</button>
   <button class="nav-tab" onclick="showView('actions')">⚡ Aktionen</button>
@@ -717,6 +718,18 @@
 <!-- ════════════════════════════ SETUP VIEW ════════════════════════════ -->
 <div id="setup-view" class="view active">
   <div class="panel">
+    <div class="panel-title">Kampagne · lebende Welt</div>
+    <div class="text-sm text-muted" style="margin-bottom:10px">
+      Optional: Wähle eine Kampagne. Dann werden Spieler über ihren Namen verbunden und die Welt erinnert sich über mehrere Partien hinweg.
+    </div>
+    <div id="campaign-setup-status" class="memory-card" style="margin-bottom:10px">Keine Kampagne gewählt.</div>
+    <div class="flex-row">
+      <button class="btn btn-primary btn-small" onclick="backendCreateCampaignDialog()">＋ Kampagne erstellen</button>
+      <button class="btn btn-secondary btn-small" onclick="backendLoadCampaignDialog()">Kampagne laden</button>
+      <button class="btn btn-secondary btn-small" onclick="clearActiveCampaign()">Ohne Kampagne spielen</button>
+    </div>
+  </div>
+  <div class="panel">
     <div class="panel-title">Neues Spiel · Spieler & Fraktionen</div>
     <div class="flex-row" style="margin-bottom:16px">
       <label class="text-sm text-muted">Spielerzahl:</label>
@@ -727,6 +740,10 @@
         <option value="5">5</option>
         <option value="6">6</option>
       </select>
+    </div>
+    <div class="form-row" style="max-width:420px;margin-bottom:16px">
+      <label>Spielname</label>
+      <input type="text" id="game-name-input" placeholder="z. B. Spiel 1 · Der erste Riss">
     </div>
     <div id="setup-grid" class="setup-grid"></div>
     <hr class="separator">
@@ -740,6 +757,38 @@
   <div class="panel">
     <div class="panel-title">Fraktionsübersicht</div>
     <div id="faction-overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ CAMPAIGN VIEW ════════════════════════════ -->
+<div id="campaign-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Kampagne · Weltchronik über mehrere Spiele</div>
+    <div class="text-sm text-muted" style="margin-bottom:12px">
+      Eine Kampagne speichert ein globales Weltgedächtnis. Spieler werden über ihren Namen verbunden: „Philipp“ in Spiel 2 ist auch „Philipp“ in Spiel 5, egal welche Fraktion er spielt.
+    </div>
+    <div id="campaign-active-summary" class="memory-card">Keine Kampagne gewählt.</div>
+    <div class="flex-row mt-8">
+      <button class="btn btn-primary btn-small" onclick="backendCreateCampaignDialog()">＋ Kampagne erstellen</button>
+      <button class="btn btn-secondary btn-small" onclick="backendLoadCampaignDialog()">Kampagne laden</button>
+      <button class="btn btn-secondary btn-small" onclick="backendListCampaigns()">Kampagnen anzeigen</button>
+      <button class="btn btn-secondary btn-small" onclick="backendAttachCurrentGameToCampaign()">Aktuelles Spiel verknüpfen</button>
+      <button class="btn btn-aether btn-small" onclick="backendFinalizeGameToCampaign()">Spiel in Weltchronik abschließen</button>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Spieler-Erinnerung</div>
+      <div id="campaign-player-memory" class="memory-grid"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Partien dieser Kampagne</div>
+      <div id="campaign-game-list" class="memory-timeline"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Weltchronik & offene Narben</div>
+    <div id="campaign-world-chronicle" class="memory-timeline"></div>
   </div>
 </div>
 
@@ -1008,7 +1057,7 @@
 
 <script>
 // ═══════════════════════════════════════════════════
-// AETHORIA COMPANION APP v0.96 · Weltgedächtnis
+// AETHORIA COMPANION APP v0.97 · Kampagnenwelt
 // Basis: Kanon v0.96
 // ═══════════════════════════════════════════════════
 
@@ -1221,6 +1270,7 @@ function createInitialState(playerDefs) {
     return {
       id: pd.id,
       name: pd.name,
+      player_key: normalizePlayerKey(pd.name),
       factionId: pd.factionId,
       factionName: faction.name,
       ap: 3,
@@ -1235,8 +1285,9 @@ function createInitialState(playerDefs) {
   });
 
   return {
-    version: "0.96",
+    version: "0.97",
     game_id: "game_" + Date.now(),
+    game_name: (document.getElementById('game-name-input')?.value || "").trim() || null,
     round: 1,
     current_player_idx: 0,
     players,
@@ -1332,13 +1383,13 @@ function checkWarnings() {
 
 function saveToStorage() {
   if (G) {
-    try { localStorage.setItem('aethoria_v096', JSON.stringify(G)); } catch(e) {}
+    try { localStorage.setItem('aethoria_v097', JSON.stringify(G)); } catch(e) {}
   }
 }
 
 function loadFromStorage() {
   try {
-    const raw = localStorage.getItem('aethoria_v096');
+    const raw = localStorage.getItem('aethoria_v097') || localStorage.getItem('aethoria_v096');
     if (raw) G = JSON.parse(raw);
   } catch(e) {}
 }
@@ -1404,10 +1455,12 @@ function startGame() {
     playerDefs.push({ id: i, name, factionId });
   }
   G = createInitialState(playerDefs);
+  attachActiveCampaignToGame(G);
   ensureWorldMemory();
   addMemoryTimeline(`Spielstart: ${G.players.length} Fraktionen betreten Aethoria.`, "setup");
   addLog("=== NEUES SPIEL GESTARTET ===", "round");
   addLog(`Spieler: ${G.players.map(p=>p.name+' ('+p.factionName+')').join(', ')}`, "action");
+  if (G.campaign_id) addLog(`Kampagne: ${G.campaign_name} · Spieler werden nach Namen verbunden.`, "world");
   G.players.forEach(p => {
     const res = Object.entries(p.resources).filter(([,v])=>v>0).map(([k,v])=>`${v} ${k}`).join(', ');
     addLog(`${p.name} startet mit: ${res}`, "action");
@@ -1428,6 +1481,7 @@ function showView(name) {
   if (view) view.classList.add('active');
   const nav = Array.from(document.querySelectorAll('.nav-tab')).find(t => (t.getAttribute('onclick') || '').includes(`'${name}'`));
   if (nav) nav.classList.add('active');
+  if (name === 'campaign') renderCampaignView();
   if (name === 'dashboard') renderDashboard();
   if (name === 'players') renderPlayers();
   if (name === 'actions') renderActionsView();
@@ -1443,6 +1497,8 @@ function renderAll() {
   if (!G) return;
   document.getElementById('round-display').textContent = `Runde ${G.round} / 10`;
   renderDashboard();
+  renderCampaignUi();
+  renderCampaignView();
   renderPlayers();
   renderWorldView();
   renderMemoryView();
@@ -2279,7 +2335,7 @@ function exportGame() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `aethoria_v096_weltgedaechtnis_runde${G.round}_${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `aethoria_v097_weltgedaechtnis_runde${G.round}_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -2316,7 +2372,7 @@ function handleImport(event) {
 function confirmNewGame() {
   if (confirm('Neues Spiel starten? Aktueller Spielstand geht verloren!')) {
     G = null;
-    try { localStorage.removeItem('aethoria_v096'); } catch(e) {}
+    try { localStorage.removeItem('aethoria_v097'); localStorage.removeItem('aethoria_v096'); } catch(e) {}
     showView('setup');
   }
 }
@@ -2388,7 +2444,7 @@ function createInitialWorldMemory(players) {
     };
   });
   return {
-    version: '0.96',
+    version: '0.97',
     mood: 'ruhig',
     threat_level: 0,
     round_summaries: [],
@@ -2410,7 +2466,7 @@ function ensureWorldMemory() {
       G.world_memory.faction_memory[p.factionId] = createInitialWorldMemory([p]).faction_memory[p.factionId];
     }
   });
-  G.world_memory.version = '0.96';
+  G.world_memory.version = '0.97';
   updateWorldMood();
 }
 
@@ -2689,16 +2745,19 @@ function generateWorldAIPrompt() {
   if (!G.world_memory.pending_reactions || G.world_memory.pending_reactions.length === 0) generateWorldReactions();
   const snapshot = {
     game:'AETHORIA',
-    version:'0.96',
+    version:'0.97',
     round:G.round,
     world:G.world,
     mood:G.world_memory.mood,
     open_threats:G.world_memory.open_threats,
     faction_memory:G.world_memory.faction_memory,
     recent_rounds:G.world_memory.round_summaries.slice(0,4),
+    campaign_id:G.campaign_id || null,
+    campaign_name:G.campaign_name || null,
+    campaign_context:G.campaign_context || null,
     allowed_reactions:G.world_memory.pending_reactions.map((r,i)=>({option:i+1,id:r.id,name:r.name,text:r.text,target:r.target? r.target.name : null, world:r.world||null}))
   };
-  const prompt = `Du bist die Weltstimme von AETHORIA. Du darfst KEINE neuen Regeln, Kosten, Siegpunkte oder Strafen erfinden. Wähle genau eine der erlaubten Weltreaktionen oder empfehle keine Anwendung, wenn sie unfair wäre. Antworte kurz auf Deutsch mit: 1) gewählte Option-ID, 2) erzählerische Begründung, 3) Hinweis auf den regelgebundenen Effekt.\n\nSPIELZUSTAND:\n${JSON.stringify(snapshot, null, 2)}`;
+  const prompt = `Du bist die Weltstimme von AETHORIA. Du darfst KEINE neuen Regeln, Kosten, Siegpunkte oder Strafen erfinden. Wähle genau eine der erlaubten Weltreaktionen oder empfehle keine Anwendung, wenn sie unfair wäre. Wenn Kampagnenkontext vorhanden ist, berücksichtige frühere Taten von Spielern mit gleichem Namen erzählerisch, aber ohne neue Strafregeln. Antworte kurz auf Deutsch mit: 1) gewählte Option-ID, 2) erzählerische Begründung, 3) Hinweis auf den regelgebundenen Effekt.\n\nSPIELZUSTAND:\n${JSON.stringify(snapshot, null, 2)}`;
   const box = document.getElementById('world-ai-prompt');
   if (box) box.value = prompt;
   return prompt;
@@ -2795,10 +2854,234 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 }
 
+
+// ── CAMPAIGN / PERSISTENT WORLD ──────────────────────────────────────────────
+let ACTIVE_CAMPAIGN = null;
+
+function normalizePlayerKey(name) {
+  return String(name || 'Spieler').trim().toLocaleLowerCase('de-DE').replace(/\s+/g, ' ') || 'spieler';
+}
+
+function loadActiveCampaignFromStorage() {
+  try {
+    const raw = localStorage.getItem('aethoria_v097_active_campaign');
+    ACTIVE_CAMPAIGN = raw ? JSON.parse(raw) : null;
+  } catch(e) { ACTIVE_CAMPAIGN = null; }
+}
+
+function setActiveCampaign(campaign) {
+  ACTIVE_CAMPAIGN = campaign || null;
+  try {
+    if (ACTIVE_CAMPAIGN) localStorage.setItem('aethoria_v097_active_campaign', JSON.stringify(ACTIVE_CAMPAIGN));
+    else localStorage.removeItem('aethoria_v097_active_campaign');
+  } catch(e) {}
+  renderCampaignUi();
+  renderCampaignView();
+}
+
+function clearActiveCampaign() {
+  setActiveCampaign(null);
+  if (G) {
+    delete G.campaign_id;
+    delete G.campaign_name;
+    delete G.campaign_context;
+    saveToStorage();
+  }
+}
+
+function campaignCompactContext(campaign) {
+  if (!campaign) return null;
+  const players = Object.values(campaign.players || {}).map(p => ({
+    name:p.name,
+    games_played:p.games_played || 0,
+    reputation:p.reputation || 'Unbeschrieben',
+    last_faction:p.last_faction || null,
+    war_score:p.war_score || 0,
+    corruption_score:p.corruption_score || 0,
+    world_damage:p.world_damage || 0,
+    world_help:p.world_help || 0,
+    remembered_events:(p.remembered_events || []).slice(0,3).map(e => e.text || '')
+  }));
+  return {
+    campaign_id: campaign.campaign_id,
+    name: campaign.name,
+    game_count: campaign.game_count || 0,
+    mood: campaign.mood || 'ruhig',
+    threat_level: campaign.threat_level || 0,
+    players,
+    open_threats:(campaign.open_threats || []).slice(0,5),
+    world_scars:(campaign.world_scars || []).slice(0,5),
+    recent_games:(campaign.game_summaries || []).slice(0,3)
+  };
+}
+
+function attachActiveCampaignToGame(state) {
+  if (!state || !ACTIVE_CAMPAIGN) return;
+  state.campaign_id = ACTIVE_CAMPAIGN.campaign_id;
+  state.campaign_name = ACTIVE_CAMPAIGN.name;
+  state.campaign_context = campaignCompactContext(ACTIVE_CAMPAIGN);
+  (state.players || []).forEach(p => { p.player_key = normalizePlayerKey(p.name); });
+}
+
+function renderCampaignUi() {
+  const status = document.getElementById('campaign-setup-status');
+  if (status) {
+    if (ACTIVE_CAMPAIGN) {
+      status.innerHTML = `<strong>${escapeHtml(ACTIVE_CAMPAIGN.name)}</strong><br><span class="text-xs text-muted">${ACTIVE_CAMPAIGN.game_count || 0} abgeschlossene Spiele · ${Object.keys(ACTIVE_CAMPAIGN.players || {}).length} bekannte Spieler · Stimmung: ${escapeHtml(ACTIVE_CAMPAIGN.mood || 'ruhig')}</span>`;
+    } else {
+      status.innerHTML = 'Keine Kampagne gewählt. Neue Spiele werden als Einzelpartie gespeichert.';
+    }
+  }
+}
+
+function renderCampaignView() {
+  renderCampaignUi();
+  const sum = document.getElementById('campaign-active-summary');
+  const playersEl = document.getElementById('campaign-player-memory');
+  const gamesEl = document.getElementById('campaign-game-list');
+  const chronEl = document.getElementById('campaign-world-chronicle');
+  if (!sum && !playersEl && !gamesEl && !chronEl) return;
+  if (!ACTIVE_CAMPAIGN) {
+    if (sum) sum.innerHTML = 'Keine Kampagne gewählt.';
+    if (playersEl) playersEl.innerHTML = '<div class="text-sm text-muted">Erstelle oder lade zuerst eine Kampagne.</div>';
+    if (gamesEl) gamesEl.innerHTML = '<div class="text-sm text-muted">Keine Partien.</div>';
+    if (chronEl) chronEl.innerHTML = '<div class="text-sm text-muted">Keine Chronik.</div>';
+    return;
+  }
+  const c = ACTIVE_CAMPAIGN;
+  if (sum) sum.innerHTML = `<strong>${escapeHtml(c.name)}</strong><br>
+    <span class="text-xs text-muted">ID: ${escapeHtml(c.campaign_id)} · Spiele: ${c.game_count || 0} · Weltstimmung: ${escapeHtml(c.mood || 'ruhig')} · Bedrohung: ${c.threat_level || 0}/10</span>`;
+  if (playersEl) {
+    const players = Object.values(c.players || {});
+    playersEl.innerHTML = players.length ? players.map(p => `
+      <div class="memory-card">
+        <strong>${escapeHtml(p.name)} · ${escapeHtml(p.reputation || 'Unbeschrieben')}</strong>
+        <div class="text-xs text-muted">Spiele: ${p.games_played || 0} · letzte Fraktion: ${escapeHtml(p.last_faction || '—')}</div>
+        ${['war_score','corruption_score','world_damage','world_help','trade_score','nature_score'].map(m => `<div class="metric-row"><span>${metricLabel(m)}</span><div class="metric-bar"><div class="metric-fill" style="width:${Math.min(100,(p[m]||0)*5)}%"></div></div><span>${p[m]||0}</span></div>`).join('')}
+        <div class="text-xs text-muted mt-8">${(p.remembered_events || []).slice(0,3).map(e => escapeHtml(e.text || '')).join('<br>') || 'Noch keine Erinnerung.'}</div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">Noch keine Spieler in dieser Kampagne.</div>';
+  }
+  if (gamesEl) {
+    const games = c.game_summaries || [];
+    gamesEl.innerHTML = games.length ? games.map(g => `
+      <div class="timeline-entry">
+        <div class="text-xs text-muted">Spiel ${g.game_number} · ${escapeHtml(g.game_name || g.game_id)} · Runde ${g.round || '?'} · ${escapeHtml(g.at || '')}</div>
+        <div>${g.winner ? 'Sieger: ' + escapeHtml(g.winner.name) + ' (' + (g.winner.score || 0) + ' SP)' : 'Kein Sieger eingetragen.'}</div>
+        <div class="text-xs text-muted">${(g.players || []).map(p => `${escapeHtml(p.name)} als ${escapeHtml(p.faction_name || p.faction_id)}`).join(' · ')}</div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">Noch keine abgeschlossenen Partien.</div>';
+  }
+  if (chronEl) {
+    const scars = (c.world_scars || []).map(s => ({type:'Narbe', text:s.text, game_number:s.game_number}));
+    const threats = (c.open_threats || []).slice(0,8).map(t => ({type:'Bedrohung', text:t.text || t.name, game_number:t.source_game_number}));
+    const entries = [...scars, ...threats].slice(0,20);
+    chronEl.innerHTML = entries.length ? entries.map(e => `
+      <div class="timeline-entry"><div class="text-xs text-muted">${escapeHtml(e.type)} · Spiel ${e.game_number || '?'}</div><div>${escapeHtml(e.text || '')}</div></div>
+    `).join('') : '<div class="text-sm text-muted">Noch keine Weltchronik oder offenen Narben.</div>';
+  }
+}
+
+async function backendCreateCampaignDialog() {
+  const name = prompt('Name der Kampagne / lebenden Welt:', ACTIVE_CAMPAIGN ? ACTIVE_CAMPAIGN.name : 'Chronik von Aethoria');
+  if (!name) return;
+  const playerNames = [];
+  document.querySelectorAll('[id^="p"][id$="-name"]').forEach(el => {
+    const v = (el.value || '').trim();
+    if (v) playerNames.push(v);
+  });
+  try {
+    const data = await backendFetch('/campaigns', {
+      method:'POST',
+      body:JSON.stringify({name, player_names:playerNames})
+    });
+    setActiveCampaign(data.campaign);
+    backendResult(data);
+    alert('Kampagne erstellt und aktiviert: ' + data.campaign.name);
+  } catch(err) {
+    alert('Kampagne konnte nicht erstellt werden: ' + err.message);
+  }
+}
+
+async function backendListCampaigns() {
+  try {
+    const data = await backendFetch('/campaigns');
+    backendResult(data);
+    return data.campaigns || [];
+  } catch(err) {
+    backendResult('Kampagnen konnten nicht geladen werden: ' + err.message);
+    return [];
+  }
+}
+
+async function backendLoadCampaignDialog() {
+  const campaigns = await backendListCampaigns();
+  if (!campaigns.length) {
+    alert('Keine Kampagnen vorhanden. Erstelle zuerst eine Kampagne.');
+    return;
+  }
+  const list = campaigns.map((c,i)=>`${i+1}. ${c.name} · Spiele ${c.game_count || 0} · Spieler ${c.players || 0} · Stimmung ${c.mood || 'ruhig'} · ${c.campaign_id}`).join('\n');
+  const input = prompt('Welche Kampagne laden?\n\n' + list + '\n\nNummer oder campaign_id eingeben:', '1');
+  if (!input) return;
+  let id = input.trim();
+  const n = parseInt(id, 10);
+  if (!Number.isNaN(n) && campaigns[n-1]) id = campaigns[n-1].campaign_id;
+  await backendLoadCampaignById(id);
+}
+
+async function backendLoadCampaignById(campaignId) {
+  const data = await backendFetch('/campaigns/' + encodeURIComponent(campaignId));
+  setActiveCampaign(data.campaign);
+  backendResult(data);
+  return data.campaign;
+}
+
+async function backendAttachCurrentGameToCampaign() {
+  if (!G) { alert('Kein Spiel gestartet.'); return; }
+  if (!ACTIVE_CAMPAIGN) { await backendLoadCampaignDialog(); if (!ACTIVE_CAMPAIGN) return; }
+  attachActiveCampaignToGame(G);
+  addLog(`Spiel mit Kampagne verknüpft: ${ACTIVE_CAMPAIGN.name}`, 'world');
+  saveToStorage();
+  await backendSyncGame();
+  renderAll();
+}
+
+async function backendFinalizeGameToCampaign() {
+  if (!G) { alert('Kein Spiel gestartet.'); return; }
+  if (!ACTIVE_CAMPAIGN && G.campaign_id) await backendLoadCampaignById(G.campaign_id);
+  if (!ACTIVE_CAMPAIGN) { alert('Keine Kampagne gewählt.'); return; }
+  attachActiveCampaignToGame(G);
+  ensureWorldMemory();
+  finalizeRoundMemory(true);
+  const defaultName = G.game_name || `Spiel ${((ACTIVE_CAMPAIGN.game_count || 0) + 1)}`;
+  const gameName = prompt('Name dieser Partie für die Weltchronik:', defaultName);
+  if (gameName === null) return;
+  G.game_name = gameName.trim() || defaultName;
+  if (!G.game_id) G.game_id = 'game_' + Date.now();
+  await backendSyncGame();
+  try {
+    const data = await backendFetch('/campaigns/' + encodeURIComponent(ACTIVE_CAMPAIGN.campaign_id) + '/absorb-game/' + encodeURIComponent(G.game_id), {
+      method:'POST',
+      body:JSON.stringify({state:G, game_name:G.game_name})
+    });
+    setActiveCampaign(data.campaign);
+    G.campaign_context = campaignCompactContext(data.campaign);
+    saveToStorage();
+    backendResult(data);
+    if (data.already_absorbed) alert('Diese Partie war bereits in der Weltchronik. Es wurde nichts doppelt gezählt.');
+    else alert('Partie wurde in die Kampagnen-Weltchronik geschrieben.');
+    renderAll();
+  } catch(err) {
+    alert('Kampagne konnte nicht aktualisiert werden: ' + err.message);
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────────
 
 function init() {
   updateSetupCards();
+  loadActiveCampaignFromStorage();
+  renderCampaignUi();
 
   // Try to restore from storage
   loadFromStorage();
@@ -2814,7 +3097,7 @@ function init() {
     // Switch to dashboard if game exists
     showView('dashboard');
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.nav-tab')[1].classList.add('active');
+    document.querySelectorAll('.nav-tab')[2].classList.add('active');
   }
 }
 
@@ -2855,6 +3138,7 @@ async function backendHealthCheck() {
 async function backendSyncGame() {
   if (!G) { backendResult('Kein Spiel gestartet.'); return; }
   try {
+    attachActiveCampaignToGame(G);
     ensureWorldMemory();
     if (!G.game_id) G.game_id = 'game_' + Date.now();
     const data = await backendFetch('/games/' + encodeURIComponent(G.game_id), {
@@ -2889,7 +3173,7 @@ async function backendLoadGameDialog() {
       alert('Keine Spielstände auf dem Server gefunden. Speichere zuerst ein Spiel mit „Server speichern“.');
       return;
     }
-    const list = games.map((g, i) => `${i + 1}. ${g.game_id} · Runde ${g.round ?? '?'} · Spieler ${g.players ?? '?'} · ${g.updated_at ?? ''}`).join('\n');
+    const list = games.map((g, i) => `${i + 1}. ${g.game_name || g.game_id} · ${g.campaign_name ? 'Kampagne: ' + g.campaign_name + ' · ' : ''}Runde ${g.round ?? '?'} · Spieler ${g.players ?? '?'} · ${g.updated_at ?? ''}`).join('\n');
     const input = prompt('Welchen Server-Spielstand laden?\n\n' + list + '\n\nNummer oder game_id eingeben:', '1');
     if (!input) return;
     let gameId = input.trim();
@@ -2906,6 +3190,9 @@ async function backendLoadGameById(gameId) {
   if (!data.state) throw new Error('Server-Antwort enthält keinen Spielstand.');
   G = data.state;
   if (!G.game_id) G.game_id = gameId;
+  if (G.campaign_id) {
+    backendLoadCampaignById(G.campaign_id).catch(()=>{});
+  }
   ensureWorldMemory();
   addLog('Server: Spielstand geladen.', 'action');
   saveToStorage();

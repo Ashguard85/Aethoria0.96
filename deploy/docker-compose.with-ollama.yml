@@ -5,7 +5,7 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    image: ${FRONTEND_IMAGE:-aethoria/frontend:v0.96}
+    image: ${FRONTEND_IMAGE:-aethoria/frontend:v0.97}
     container_name: ${FRONTEND_CONTAINER_NAME:-aethoria-frontend}
     restart: unless-stopped
     depends_on:
@@ -20,13 +20,12 @@ services:
     build:
       context: ..
       dockerfile: ./api/Dockerfile
-    image: ${API_IMAGE:-aethoria/api:v0.96}
+    image: ${API_IMAGE:-aethoria/api:v0.97}
     container_name: ${API_CONTAINER_NAME:-aethoria-api}
     restart: unless-stopped
     environment:
-      AETHORIA_VERSION: "0.96"
+      AETHORIA_VERSION: "0.97"
       AETHORIA_DB_PATH: "/data/${AETHORIA_DB_FILE:-aethoria.sqlite}"
-      AETHORIA_CANON_DIR: "/app/data"
       OLLAMA_INTERNAL_URL: "http://ollama:11434"
       OLLAMA_MODEL: "${OLLAMA_MODEL:-llama3.1:8b}"
       OLLAMA_TIMEOUT: "${OLLAMA_TIMEOUT:-60}"

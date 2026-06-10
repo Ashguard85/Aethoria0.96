@@ -1,0 +1,31 @@
+AETHORIA Companion v0.97 – Kampagnenwelt / Weltchronik
+
+Neu:
+- Kampagnen können mit Namen erstellt, geladen und dauerhaft in SQLite gespeichert werden.
+- Spiele können mit einer Kampagne verknüpft werden.
+- Am Spielende kann eine Partie in die Weltchronik der Kampagne geschrieben werden.
+- Spieler werden über ihren Namen verbunden. Beispiel: "Spieler A" in Spiel 2 und "Spieler A" in Spiel 5 sind dieselbe Person.
+- Kampagnen-Gedächtnis speichert pro Spieler: gespielte Partien, Fraktionen, Krieg, Korruption, Weltschaden, Welthilfe, Handel, Natur, Ruf und Erinnerungstexte.
+- Weltchronik speichert Spielzusammenfassungen, offene Bedrohungen und Weltnarben.
+- Ollama/Weltstimme erhält Kampagnenkontext, darf alte Taten aber nur erzählerisch berücksichtigen und keine neuen Regeln erfinden.
+
+Neue Backend-Endpunkte:
+- GET  /api/campaigns
+- POST /api/campaigns
+- GET  /api/campaigns/{campaign_id}
+- PUT  /api/campaigns/{campaign_id}
+- GET  /api/campaigns/{campaign_id}/games
+- POST /api/campaigns/{campaign_id}/absorb-game/{game_id}
+
+Migration:
+- Bestehende SQLite-Datei kann weiterverwendet werden.
+- Die Tabellen campaigns und campaign_events werden automatisch beim ersten API-Zugriff erstellt.
+- Alte Spielstände bleiben in der Tabelle games erhalten.
+
+Empfohlener Ablauf:
+1. Kampagne erstellen oder laden.
+2. Neues Spiel starten.
+3. Spieler exakt mit dem gewünschten dauerhaften Namen eintragen.
+4. Spiel währenddessen normal mit „Server speichern“ sichern.
+5. Am Ende „Spiel in Weltchronik abschließen“ drücken.
+6. Nächstes Spiel in derselben Kampagne starten.

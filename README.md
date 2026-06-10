@@ -1,4 +1,4 @@
-# AETHORIA Companion v0.96
+# AETHORIA Companion v0.97
 
 Git- und Portainer-taugliches Repository für die AETHORIA Companion App.
 
@@ -104,3 +104,26 @@ Die Backend-Endpunkte sind:
 - `GET /api/games/{game_id}`
 - `PUT /api/games/{game_id}`
 - `GET /api/config`
+
+
+## v0.97 Kampagnenwelt
+
+Diese Version ergänzt eine persistente Kampagnenwelt. Eine Kampagne wird in SQLite gespeichert und verbindet Partien über den Spielernamen. Beispiel: Wenn „Spieler A" in Spiel 2 eine Aetherwunde überlädt, bleibt diese Erinnerung im Kampagnen-Gedächtnis erhalten und kann in Spiel 5 wieder als erzählerischer Kontext für die Weltstimme auftauchen.
+
+Neue API-Endpunkte:
+
+- `GET /api/campaigns`
+- `POST /api/campaigns`
+- `GET /api/campaigns/{campaign_id}`
+- `PUT /api/campaigns/{campaign_id}`
+- `GET /api/campaigns/{campaign_id}/games`
+- `POST /api/campaigns/{campaign_id}/absorb-game/{game_id}`
+
+Ablauf:
+
+1. Kampagne erstellen oder laden.
+2. Neues Spiel starten.
+3. Spieler exakt mit wiederkehrendem Namen eintragen.
+4. Spiel normal spielen und per Server speichern.
+5. Am Ende „Spiel in Weltchronik abschließen" drücken.
+6. Neues Spiel in derselben Kampagne starten. Die Kampagne liefert den Kontext für Spieler- und Welterinnerungen.

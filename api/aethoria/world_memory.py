@@ -9,7 +9,7 @@ def clamp(v: int, lo: int, hi: int) -> int:
 def ensure_memory(state: dict[str, Any]) -> dict[str, Any]:
     players = state.get("players", [])
     mem = state.setdefault("world_memory", {})
-    mem.setdefault("version", "0.96")
+    mem.setdefault("version", "0.97")
     mem.setdefault("round_summaries", [])
     mem.setdefault("major_events", [])
     mem.setdefault("open_threats", [])
@@ -162,13 +162,16 @@ def build_world_voice_prompt(state: dict[str, Any], extra_prompt: str | None = N
     reactions = deterministic_reactions(state)
     snapshot = {
         "game": "AETHORIA",
-        "version": "0.96",
+        "version": "0.97",
         "round": state.get("round"),
         "world": state.get("world", {}),
         "mood": mem.get("mood"),
         "open_threats": mem.get("open_threats", []),
         "faction_memory": mem.get("faction_memory", {}),
         "recent_rounds": mem.get("round_summaries", [])[:4],
+        "campaign_id": state.get("campaign_id"),
+        "campaign_name": state.get("campaign_name"),
+        "campaign_context": state.get("campaign_context", {}),
         "allowed_reactions": [
             {"option": i + 1, "id": r["id"], "name": r["name"], "text": r["text"], "target": (r.get("target") or {}).get("name"), "world": r.get("world"), "choice": r.get("choice")}
             for i, r in enumerate(reactions)
