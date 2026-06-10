@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AETHORIA Companion v0.96 · Docker/Ollama</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #141720;
+    --bg3: #1c2030;
+    --border: #2a3050;
+    --border2: #3a4570;
+    --gold: #c8a84b;
+    --gold2: #e8c870;
+    --aether: #8b5cf6;
+    --aether2: #a78bfa;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --ok: #10b981;
+    --text: #d4cfc4;
+    --text2: #8a8ea8;
+    --white: #f0ece0;
+    --eisengilde: #b45309;
+    --tidenrat: #0891b2;
+    --nebelwacht: #7c3aed;
+    --sonnenbund: #ca8a04;
+    --wildklinge: #16a34a;
+    --grauasche: #6b7280;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ──── HEADER ──── */
+  #app-header {
+    background: linear-gradient(135deg, #0a0c12 0%, #1a1530 50%, #0a0c12 100%);
+    border-bottom: 1px solid var(--gold);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 20px rgba(200,168,75,0.15);
+  }
+  #app-header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold2);
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(200,168,75,0.4);
+  }
+  #app-header .version {
+    font-size: 0.75rem;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+  #round-display {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    border: 1px solid var(--border2);
+    padding: 4px 14px;
+    border-radius: 4px;
+    background: rgba(200,168,75,0.05);
+  }
+
+  /* ──── NAV TABS ──── */
+  #nav-tabs {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  #nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 10px 16px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--text2);
+    cursor: pointer;
+    border: none; background: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--gold); }
+  .nav-tab.active {
+    color: var(--gold2);
+    border-bottom-color: var(--gold);
+  }
+
+  /* ──── LAYOUT ──── */
+  #main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ──── CARDS / PANELS ──── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .panel-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ──── BUTTONS ──── */
+  .btn {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    padding: 7px 16px;
+    border-radius: 4px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #8a6820 0%, var(--gold) 100%);
+    border-color: var(--gold2);
+    color: #0d0f14;
+    font-weight: 600;
+  }
+  .btn-primary:hover { filter: brightness(1.15); }
+  .btn-secondary {
+    background: var(--bg3);
+    border-color: var(--border2);
+    color: var(--text);
+  }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-danger {
+    background: rgba(239,68,68,0.1);
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+  .btn-aether {
+    background: rgba(139,92,246,0.15);
+    border-color: var(--aether);
+    color: var(--aether2);
+  }
+  .btn-aether:hover { background: rgba(139,92,246,0.25); }
+  .btn-small { padding: 4px 10px; font-size: 0.82rem; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ──── SETUP VIEW ──── */
+  #setup-view .setup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .player-setup-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+  }
+  .player-setup-card h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .form-row {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: 10px;
+  }
+  .form-row label {
+    font-size: 0.8rem;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+  }
+  .form-row input, .form-row select {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 6px 10px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+  .form-row input:focus, .form-row select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  /* ──── PLAYER CARDS (game view) ──── */
+  #players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .player-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .player-card.active-player {
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(200,168,75,0.15);
+  }
+  .player-card-header {
+    padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .player-card-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .player-card-score {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold2);
+  }
+  .player-card-body { padding: 10px 14px; }
+
+  /* AP dots */
+  .ap-bar { display: flex; gap: 5px; margin-bottom: 10px; align-items: center; }
+  .ap-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem;
+  }
+  .ap-dot.used { background: transparent; border-color: var(--border2); }
+  .ap-dot.available { background: var(--gold); border-color: var(--gold2); }
+  .ap-label { font-size: 0.78rem; color: var(--text2); margin-left: 6px; }
+
+  /* Resources */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .resource-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px;
+    text-align: center;
+  }
+  .resource-cell .res-label {
+    font-size: 0.65rem;
+    color: var(--text2);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .resource-cell .res-value {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--white);
+    display: flex; align-items: center; justify-content: center; gap: 2px;
+  }
+  .resource-cell .res-value.aether { color: var(--aether2); }
+  .res-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-size: 0.8rem; padding: 0 2px;
+    transition: color 0.1s;
+  }
+  .res-btn:hover { color: var(--gold); }
+
+  /* Faction badge */
+  .faction-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  /* ──── WORLD STATE ──── */
+  .world-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .world-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+  }
+  .world-cell .wc-label {
+    font-size: 0.72rem;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .world-cell .wc-value {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    margin-bottom: 4px;
+  }
+  .world-bar {
+    width: 100%; height: 4px;
+    background: var(--bg2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .world-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .wc-controls { display: flex; gap: 4px; justify-content: center; }
+  .wc-btn {
+    background: var(--bg2); border: 1px solid var(--border2);
+    color: var(--text2); border-radius: 3px;
+    width: 24px; height: 24px;
+    cursor: pointer; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .wc-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .warn-badge {
+    font-size: 0.62rem;
+    color: var(--warn);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* ──── ACTION PANEL ──── */
+  .action-list { display: flex; flex-direction: column; gap: 6px; }
+  .action-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .action-item.disabled { opacity: 0.4; }
+  .action-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .action-cost {
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .action-reason {
+    font-size: 0.72rem;
+    color: var(--danger);
+    font-style: italic;
+  }
+
+  /* ──── COMBAT ──── */
+  .dice-result {
+    font-family: 'Cinzel', serif;
+    font-size: 3rem;
+    color: var(--gold2);
+    text-align: center;
+    padding: 20px;
+    text-shadow: 0 0 30px rgba(200,168,75,0.5);
+    animation: diceAppear 0.3s ease-out;
+  }
+  @keyframes diceAppear {
+    from { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+  .combat-vs {
+    display: flex; gap: 16px; align-items: stretch;
+    margin-bottom: 16px;
+  }
+  .combat-side {
+    flex: 1; background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 12px;
+    text-align: center;
+  }
+  .combat-side h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    color: var(--text2);
+    margin-bottom: 8px;
+  }
+  .combat-total {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    color: var(--white);
+  }
+  .combat-winner { color: var(--ok); }
+  .combat-loser { color: var(--danger); }
+
+  /* ──── AETHER ──── */
+  .risk-result {
+    padding: 14px;
+    border-radius: 6px;
+    margin-top: 12px;
+    border: 1px solid;
+  }
+  .risk-bad { border-color: var(--danger); background: rgba(239,68,68,0.08); }
+  .risk-warn { border-color: var(--warn); background: rgba(245,158,11,0.08); }
+  .risk-ok { border-color: var(--ok); background: rgba(16,185,129,0.08); }
+
+  /* ──── CARDS VIEW ──── */
+  .deck-area {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .deck-pile {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .deck-pile h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .deck-count {
+    font-size: 0.72rem;
+    color: var(--text2);
+    background: var(--bg2);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .hand-cards { display: flex; flex-direction: column; gap: 6px; }
+  .card-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .card-item:hover { border-color: var(--gold); }
+  .card-timing {
+    font-size: 0.65rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .card-name-display {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--white);
+    margin: 1px 0;
+  }
+  .card-text {
+    font-size: 0.78rem;
+    color: var(--text2);
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* ──── LOG ──── */
+  #log-list {
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 0.82rem;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .log-entry {
+    padding: 5px 8px;
+    border-radius: 3px;
+    border-left: 3px solid var(--border2);
+    background: var(--bg3);
+    line-height: 1.3;
+  }
+  .log-entry.log-round { border-left-color: var(--gold); color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 1px; }
+  .log-entry.log-action { border-left-color: var(--ok); }
+  .log-entry.log-world { border-left-color: var(--aether); }
+  .log-entry.log-combat { border-left-color: var(--danger); }
+  .log-entry.log-warn { border-left-color: var(--warn); }
+  .log-time { color: var(--text2); font-size: 0.72rem; margin-right: 6px; }
+
+  /* ──── WARNINGS BAR ──── */
+  #warnings-bar {
+    display: none;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid var(--warn);
+    border-radius: 5px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+    color: var(--warn);
+  }
+
+  /* ──── GAME END ──── */
+  #game-end-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #game-end-overlay.hidden { display: none !important; }
+  .game-end-card {
+    background: var(--bg2);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 500px; width: 90%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(200,168,75,0.3);
+  }
+  .game-end-card h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: var(--gold2);
+    margin-bottom: 8px;
+  }
+  .winner-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    color: var(--white);
+    margin: 12px 0;
+  }
+  .score-list { text-align: left; margin: 16px 0; }
+  .score-list-item {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+
+  /* ──── MISC ──── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .text-sm { font-size: 0.82rem; }
+  .text-xs { font-size: 0.72rem; }
+  .text-muted { color: var(--text2); }
+  .text-gold { color: var(--gold); }
+  .text-ok { color: var(--ok); }
+  .text-danger { color: var(--danger); }
+  .text-aether { color: var(--aether2); }
+  .separator { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    background: var(--bg3);
+  }
+  .badge-used {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(239,68,68,0.08);
+  }
+  select option { background: #1c2030; }
+  .num-input {
+    background: var(--bg2); border: 1px solid var(--border2);
+    color: var(--text); border-radius: 4px;
+    padding: 5px 10px; width: 70px;
+    font-family: 'Cinzel', serif; font-size: 1rem;
+    text-align: center;
+  }
+  .num-input:focus { outline: none; border-color: var(--gold); }
+  .faction-info-row {
+    font-size: 0.78rem; color: var(--text2); margin-bottom: 4px;
+    padding: 3px 6px; background: var(--bg3); border-radius: 3px;
+  }
+  .scrollable { max-height: 320px; overflow-y: auto; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+
+  /* ──── WORLD MEMORY ──── */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .memory-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 12px;
+  }
+  .memory-card strong {
+    color: var(--gold2);
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+  }
+  .metric-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 32px;
+    gap: 8px;
+    align-items: center;
+    margin: 5px 0;
+    font-size: 0.74rem;
+  }
+  .metric-bar {
+    height: 5px;
+    border-radius: 5px;
+    background: var(--bg2);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .metric-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--aether), var(--gold));
+    border-radius: 5px;
+  }
+  .reaction-card {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(200,168,75,0.06));
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--aether);
+    border-radius: 7px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .reaction-card .reaction-title {
+    font-family: 'Cinzel', serif;
+    color: var(--gold2);
+    font-size: 0.86rem;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .memory-timeline {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .timeline-entry {
+    background: var(--bg3);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  .world-prompt-box {
+    width: 100%; min-height: 180px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="app-header">
+  <div>
+    <h1>AETHORIA</h1>
+    <div class="version">COMPANION v0.96 · KANON v0.96 · OLLAMA · WELTGEDÄCHTNIS</div>
+  </div>
+  <div id="round-display">Runde — / 10</div>
+</header>
+
+<!-- NAV -->
+<nav id="nav-tabs">
+  <button class="nav-tab active" onclick="showView('setup')">⚙ Setup</button>
+  <button class="nav-tab" onclick="showView('dashboard')">◈ Dashboard</button>
+  <button class="nav-tab" onclick="showView('players')">♟ Spieler</button>
+  <button class="nav-tab" onclick="showView('actions')">⚡ Aktionen</button>
+  <button class="nav-tab" onclick="showView('world')">🌍 Weltstatus</button>
+  <button class="nav-tab" onclick="showView('memory')">🜂 Weltgedächtnis</button>
+  <button class="nav-tab" onclick="showView('combat')">⚔ Kampf</button>
+  <button class="nav-tab" onclick="showView('aether')">✦ Aether</button>
+  <button class="nav-tab" onclick="showView('cards')">🂠 Karten</button>
+  <button class="nav-tab" onclick="showView('log')">📜 Log</button>
+</nav>
+
+<main id="main-content">
+
+<!-- ════════════════════════════ SETUP VIEW ════════════════════════════ -->
+<div id="setup-view" class="view active">
+  <div class="panel">
+    <div class="panel-title">Neues Spiel · Spieler & Fraktionen</div>
+    <div class="flex-row" style="margin-bottom:16px">
+      <label class="text-sm text-muted">Spielerzahl:</label>
+      <select id="player-count-select" onchange="updateSetupCards()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:4px;padding:5px 10px;font-family:inherit">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+      </select>
+    </div>
+    <div id="setup-grid" class="setup-grid"></div>
+    <hr class="separator">
+    <div class="flex-row">
+      <button class="btn btn-primary" onclick="startGame()">▶ Spiel starten</button>
+      <button class="btn btn-secondary" onclick="backendLoadGameDialog()">↓ Spielstand vom Server laden</button>
+      <button class="btn btn-secondary" onclick="importGame()">JSON importieren</button>
+      <input type="file" id="import-file" style="display:none" accept=".json" onchange="handleImport(event)">
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Fraktionsübersicht</div>
+    <div id="faction-overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ DASHBOARD VIEW ════════════════════════════ -->
+<div id="dashboard-view" class="view">
+  <div id="warnings-bar"></div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Rundensteuerung</div>
+      <div class="flex-row">
+        <div>
+          <div class="text-xs text-muted" style="margin-bottom:4px">Aktiver Spieler</div>
+          <div id="db-active-player" style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold2)">—</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-small" onclick="prevPlayer()">◀ Zurück</button>
+          <button class="btn btn-primary btn-small" onclick="nextPlayer()">Weiter ▶</button>
+          <button class="btn btn-secondary btn-small" onclick="nextRound()">Runde beenden ⟳</button>
+        </div>
+      </div>
+      <hr class="separator">
+      <div id="db-player-summary"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Weltstatus · Überblick</div>
+      <div id="db-world-summary"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Siegpunkt-Übersicht</div>
+    <div id="db-scores"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ PLAYERS VIEW ════════════════════════════ -->
+<div id="players-view" class="view">
+  <div id="players-grid"></div>
+</div>
+
+<!-- ════════════════════════════ ACTIONS VIEW ════════════════════════════ -->
+<div id="actions-view" class="view">
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Aktiver Spieler</div>
+      <div id="action-player-info"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Spieler wählen</div>
+      <div id="action-player-select" class="flex-row"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Verfügbare Aktionen</div>
+    <div id="action-list" class="action-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ WORLD VIEW ════════════════════════════ -->
+<div id="world-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Weltwerte</div>
+    <div id="world-grid" class="world-grid"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Katastrophenprüfung</div>
+    <div id="catastrophe-status"></div>
+    <div class="mt-8">
+      <button class="btn btn-secondary" onclick="checkCatastrophe()">🎲 Katastrophe prüfen (W6)</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════ WORLD MEMORY VIEW ════════════════════════════ -->
+<div id="memory-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Weltgedächtnis · Regelgebundene Welt-KI</div>
+    <div class="text-sm text-muted" style="margin-bottom:12px">
+      Die Welt ist kein freier Spielleiter. Die App speichert langfristige Folgen, berechnet faire Reaktionen aus festen Regeln und erzeugt optional einen Prompt für Claude/Ollama als Weltstimme.
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-secondary" onclick="finalizeRoundMemory(true)">◈ Aktuelle Runde ins Gedächtnis schreiben</button>
+      <button class="btn btn-aether" onclick="generateWorldReactions()">✦ Welt reagieren lassen</button>
+      <button class="btn btn-secondary" onclick="generateWorldAIPrompt()">☉ KI-Prompt erzeugen</button>
+      <button class="btn btn-secondary" onclick="addManualMemoryEntry()">✎ Erinnerung hinzufügen</button>
+    </div>
+  </div>
+
+  <div class="memory-grid">
+    <div class="panel">
+      <div class="panel-title">Weltlage</div>
+      <div id="memory-world-summary"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Offene Bedrohungen</div>
+      <div id="memory-threats"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Fraktionsruf & Weltwirkung</div>
+    <div id="memory-factions" class="memory-grid"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Vorgeschlagene Weltreaktionen</div>
+    <div class="text-xs text-muted" style="margin-bottom:8px">
+      Nur diese regelgebundenen Reaktionen dürfen angewendet werden. Die KI darf sie erzählerisch begründen, aber keine neuen Effekte erfinden.
+    </div>
+    <div id="memory-reactions"></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">Weltchronik</div>
+      <div id="memory-timeline" class="memory-timeline"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Prompt für Claude/Ollama</div>
+      <textarea id="world-ai-prompt" class="world-prompt-box" placeholder="Hier erscheint ein regelgebundener Prompt für die Weltstimme."></textarea>
+      <div class="flex-row mt-8">
+        <button class="btn btn-secondary btn-small" onclick="copyWorldPrompt()">Prompt kopieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Server-Speicher & Ollama</div>
+    <div class="text-xs text-muted" style="margin-bottom:8px">
+      Diese Buttons nutzen die SQLite-Speicherung im FastAPI-Backend. JSON Import/Export bleibt nur als Backup erhalten. Ollama darf nur aus erlaubten Weltreaktionen wählen.
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-secondary btn-small" onclick="backendHealthCheck()">Backend prüfen</button>
+      <button class="btn btn-primary btn-small" onclick="backendSyncGame()">💾 Server speichern</button>
+      <button class="btn btn-secondary btn-small" onclick="backendLoadGameDialog()">↓ Server laden</button>
+      <button class="btn btn-secondary btn-small" onclick="backendListGames()">Spielstände anzeigen</button>
+      <button class="btn btn-aether btn-small" onclick="backendAskOllamaWorldVoice()">Ollama-Weltstimme testen</button>
+    </div>
+    <textarea id="backend-ollama-result" class="world-prompt-box" placeholder="Backend-/Ollama-Antwort erscheint hier." style="margin-top:10px;min-height:120px"></textarea>
+  </div>
+</div>
+
+<!-- ════════════════════════════ COMBAT VIEW ════════════════════════════ -->
+<div id="combat-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Kampfabwicklung · W8</div>
+    <div class="combat-vs">
+      <div class="combat-side">
+        <h4>ANGREIFER</h4>
+        <div class="form-row">
+          <label>Spieler</label>
+          <select id="combat-attacker" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:4px;padding:5px 8px;font-family:inherit"></select>
+        </div>
+        <div class="form-row">
+          <label>Bonus</label>
+          <input type="number" id="combat-atk-bonus" class="num-input" value="0" min="0" max="10">
+        </div>
+        <div id="combat-atk-roll" class="dice-result" style="font-size:2rem;padding:10px">—</div>
+        <div id="combat-atk-total" class="combat-total">—</div>
+      </div>
+      <div style="display:flex;align-items:center;font-family:'Cinzel',serif;font-size:1.2rem;color:var(--text2);padding:0 8px">VS</div>
+      <div class="combat-side">
+        <h4>VERTEIDIGER</h4>
+        <div class="form-row">
+          <label>Spieler</label>
+          <select id="combat-defender" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:4px;padding:5px 8px;font-family:inherit"></select>
+        </div>
+        <div class="form-row">
+          <label>Bonus</label>
+          <input type="number" id="combat-def-bonus" class="num-input" value="0" min="0" max="10">
+        </div>
+        <div id="combat-def-roll" class="dice-result" style="font-size:2rem;padding:10px">—</div>
+        <div id="combat-def-total" class="combat-total">—</div>
+      </div>
+    </div>
+    <div class="flex-row">
+      <button class="btn btn-danger" onclick="rollCombat()">⚔ Kampf würfeln (W8)</button>
+    </div>
+    <div id="combat-result" style="margin-top:14px;display:none"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Kampfboni · Referenz</div>
+    <div id="combat-bonuses-ref"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ AETHER VIEW ════════════════════════════ -->
+<div id="aether-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Aether anzapfen · Risiko-Wurf W6</div>
+    <div class="form-row" style="max-width:220px">
+      <label>Spieler</label>
+      <select id="aether-player" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:4px;padding:5px 8px;font-family:inherit"></select>
+    </div>
+    <div class="form-row" style="max-width:220px">
+      <label>Bonus/Malus auf Risiko-Wurf</label>
+      <input type="number" id="aether-modifier" class="num-input" value="0" min="-3" max="3">
+    </div>
+    <div class="flex-row mt-8">
+      <button class="btn btn-aether" onclick="rollAether()">✦ Aether anzapfen</button>
+    </div>
+    <div id="aether-result" style="display:none" class="mt-12"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Risiko-Tabelle · Referenz</div>
+    <div id="aether-risk-table"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ CARDS VIEW ════════════════════════════ -->
+<div id="cards-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Kartenstapel & Hände</div>
+    <div class="flex-row" style="margin-bottom:14px">
+      <label class="text-sm text-muted">Spieler:</label>
+      <select id="cards-player-select" onchange="renderCardsView()" style="background:var(--bg2);border:1px solid var(--border2);color:var(--text);border-radius:4px;padding:5px 10px;font-family:inherit"></select>
+      <button class="btn btn-secondary btn-small" onclick="drawCard('Fraktionsdeck')">Fraktion ziehen</button>
+      <button class="btn btn-secondary btn-small" onclick="drawCard('Forschungsdeck')">Forschung ziehen</button>
+      <button class="btn btn-secondary btn-small" onclick="drawCard('Taktikdeck')">Taktik ziehen</button>
+      <button class="btn btn-secondary btn-small" onclick="drawWorldReaction()">Weltreaktion</button>
+    </div>
+    <div id="cards-content" class="deck-area"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Geheimziele</div>
+    <div class="flex-row" style="margin-bottom:10px">
+      <button class="btn btn-secondary btn-small" onclick="assignSecretObjectives()">🎲 Zufällig zuweisen</button>
+    </div>
+    <div id="objectives-display"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ LOG VIEW ════════════════════════════ -->
+<div id="log-view" class="view">
+  <div class="panel">
+    <div class="panel-title">Aktions-Log</div>
+    <div class="flex-row" style="margin-bottom:10px">
+      <button class="btn btn-primary btn-small" onclick="backendSyncGame()">💾 Server speichern</button>
+      <button class="btn btn-secondary btn-small" onclick="backendLoadGameDialog()">↓ Server laden</button>
+      <button class="btn btn-secondary btn-small" onclick="exportGame()">JSON exportieren</button>
+      <button class="btn btn-secondary btn-small" onclick="importGame()">JSON importieren</button>
+      <button class="btn btn-secondary btn-small" onclick="addManualLog()">✏ Manuelle Notiz</button>
+      <button class="btn btn-danger btn-small" onclick="confirmNewGame()">✕ Neues Spiel</button>
+    </div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+</main>
+
+<!-- GAME END OVERLAY -->
+<div id="game-end-overlay" class="hidden">
+  <div class="game-end-card">
+    <h2>✦ SPIELENDE ✦</h2>
+    <div id="game-end-winner" class="winner-name"></div>
+    <div id="game-end-scores" class="score-list"></div>
+    <hr class="separator">
+    <div id="game-end-tiebreaker" class="text-sm text-muted" style="margin-bottom:16px"></div>
+    <div class="flex-row" style="justify-content:center">
+      <button class="btn btn-primary" onclick="closeGameEnd()">Schliessen</button>
+      <button class="btn btn-primary" onclick="backendSyncGame()">Server speichern</button>
+      <button class="btn btn-secondary" onclick="exportGame()">JSON exportieren</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// AETHORIA COMPANION APP v0.96 · Weltgedächtnis
+// Basis: Kanon v0.96
+// ═══════════════════════════════════════════════════
+
+// ── GAME DATA (Kanon v0.96) ──────────────────────────────────────────────────
+
+const FACTIONS = [
+  { id:"eisengilde", name:"Eisengilde", home:"Gebirge", color:"#b45309",
+    start:{Holz:1,Nahrung:1,Stein:2,Gold:0,Aether:0},
+    hint:"Bau · Verteidigung · Technik",
+    bonuses:[
+      "Erste Festung: 1 Stein weniger (1×/Spiel)",
+      "+1 Kampf bei Verteidigung auf Gebirge oder Festung",
+      "Festung bauen: Stabilität +1"
+    ],
+    sa:{name:"Verteidigungsring", cost:"1 AP, 1 Stein", once_per_round:true,
+        text:"Eigene Siedlung erhält +1 Verteidigung diese Runde."}
+  },
+  { id:"tidenrat", name:"Tidenrat", home:"Küste", color:"#0891b2",
+    start:{Holz:1,Nahrung:1,Stein:0,Gold:1,Aether:0},
+    hint:"Handel · Flexibilität · Küste",
+    bonuses:[
+      "Erstes Handelsabkommen pro Runde kostet 0 AP (1×/Runde)",
+      "+1 Kampf auf Küstenfeldern",
+      "Handelsabkommen: Wirtschaft +1"
+    ],
+    sa:{name:"Markt öffnen", cost:"1 AP", once_per_round:true,
+        text:"Tausche 1 eigene Ressource gegen 1 beliebige Basisressource."}
+  },
+  { id:"nebelwacht", name:"Nebelwacht", home:"Schleierquelle", color:"#7c3aed",
+    start:{Holz:1,Nahrung:1,Stein:0,Gold:1,Aether:1},
+    hint:"Aether · Risiko · Kontrolle",
+    bonuses:[
+      "Erste Aether-Aktion pro Runde: +1 Aether (1×/Runde)",
+      "+1 Kampf bei Angriff aus Schleierquelle oder Aetherwunde",
+      "Aetherwunde reinigen: Stabilität +1",
+      "Passiv: 1× pro Runde Aether anzapfen kostet 0 AP (Risiko bleibt)"
+    ],
+    sa:{name:"Schleierblick", cost:"1 AP", once_per_round:true,
+        text:"Sieh oberste Weltreaktionskarte an ODER wirf Risiko-Wurf neu."}
+  },
+  { id:"sonnenbund", name:"Sonnenbund", home:"Ebene", color:"#ca8a04",
+    start:{Holz:2,Nahrung:2,Stein:0,Gold:0,Aether:0},
+    hint:"Stabilität · Reinigung · Versorgung",
+    bonuses:[
+      "Erste Reinigungsaktion pro Runde kostet 0 AP (1×/Runde)",
+      "+1 Kampf bei Verteidigung auf Ebene oder Siedlung",
+      "Natur schützen: +1 zusätzliche Stabilität"
+    ],
+    sa:{name:"Schutzsegen", cost:"1 AP", once_per_round:true,
+        text:"Wähle 1 eigenes Feld: Kann diese Runde nicht verflucht werden."}
+  },
+  { id:"wildklinge", name:"Wildklinge", home:"Wald", color:"#16a34a",
+    start:{Holz:2,Nahrung:1,Stein:0,Gold:1,Aether:0},
+    hint:"Natur · Bewegung · Kontrolle",
+    bonuses:[
+      "Erste Waldbewegung pro Runde kostet 0 AP (1×/Runde)",
+      "+1 Kampf auf Waldfeldern",
+      "Natur schützen: +1 Siegpunkt"
+    ],
+    sa:{name:"Pfad der Jagd", cost:"1 AP", once_per_round:true,
+        text:"Bewege 1 eigene Einheit um 1 zusätzliches Feld."}
+  },
+  { id:"grauasche", name:"Grauasche", home:"Asche", color:"#6b7280",
+    start:{Holz:1,Nahrung:1,Stein:2,Gold:0,Aether:0},
+    hint:"Korruption · Zerstörung · Asche",
+    bonuses:[
+      "1× pro Spiel: 5 Weltenzorn → +1 SP",
+      "+1 Kampf auf Aschefeldern",
+      "Aetherwunde überladen: +1 Siegpunkt (zusätzlich)"
+    ],
+    sa:{name:"Feld verfluchen", cost:"1 AP", once_per_round:true,
+        text:"1 angrenzendes Feld produziert diese Runde nicht. Weltenzorn +1."}
+  }
+];
+
+const ACTIONS = [
+  { id:"move", name:"Bewegen", ap:1, cost:{}, text:"Eine Einheit bis zu 2 Felder bewegen." },
+  { id:"build_settlement", name:"Siedlung bauen", ap:1, cost:{Holz:1,Nahrung:1}, score:1 },
+  { id:"build_unit", name:"Einheit rekrutieren", ap:1, cost:{Nahrung:1,Gold:1} },
+  { id:"build_fortress", name:"Festung bauen", ap:1, cost:{Stein:2,Holz:1}, score:1 },
+  { id:"upgrade_city", name:"Siedlung → Stadt", ap:1, cost:{Stein:2,Gold:1}, score:2 },
+  { id:"attack", name:"Angreifen", ap:1, cost:{}, world:{Kriegsdruck:1}, note:"Würfeln im Kampf-Tab" },
+  { id:"tap_aether", name:"Aether anzapfen", ap:1, cost:{}, world:{Aetherkorruption:1}, note:"Risiko-Wurf im Aether-Tab" },
+  { id:"protect_nature", name:"Natur schützen", ap:1, cost:{}, world:{Stabilität:2,Weltenzorn:-1}, once_per_player_round:true },
+  { id:"trade_once", name:"Einmaliger Ressourcentausch", ap:0, cost:{}, text:"Tausch ohne Welteffekt." },
+  { id:"trade_agreement", name:"Handelsabkommen", ap:1, cost:{}, world:{Wirtschaft:1,Stabilität:1}, note:"SP nur wenn Kriegsdruck < 5" },
+  { id:"secure_aether_wound", name:"Aetherwunde sichern", ap:1, cost:{} },
+  { id:"upgrade_aether_wound", name:"Aetherwunde ausbauen", ap:1, cost:{Stein:2,Aether:1}, score:1 },
+  { id:"overload_aether_wound", name:"Aetherwunde überladen", ap:1, cost:{Aether:1}, score:1, world:{Aetherkorruption:1,Weltenzorn:2} },
+  { id:"cleanse_aether_wound", name:"Aetherwunde reinigen", ap:1, cost:{Nahrung:1,Gold:1}, world:{Aetherkorruption:-2,Weltenzorn:-1} }
+];
+
+const WORLD_INITIAL = {Stabilität:50,Aetherkorruption:0,Kriegsdruck:0,Wirtschaft:50,Naturgleichgewicht:50,Weltenzorn:0};
+const WORLD_RANGES = {Stabilität:[0,100],Aetherkorruption:[0,50],Kriegsdruck:[0,20],Wirtschaft:[0,100],Naturgleichgewicht:[0,100],Weltenzorn:[0,50]};
+const WORLD_WARN = {Weltenzorn:{min:20},Aetherkorruption:{min:25},Stabilität:{max:25},Naturgleichgewicht:{max:25},Kriegsdruck:{min:10}};
+
+const RISK_TABLE = [
+  {roll:1, name:"Aetherbrand", world:{Aetherkorruption:1,Weltenzorn:2}, cls:"risk-bad", text:"Korruption +1, Weltenzorn +2"},
+  {roll:2, name:"Flüsterriss", world:{Weltenzorn:1}, cls:"risk-warn", text:"Weltenzorn +1"},
+  {roll:3, name:"Unruhiger Sog", world:{}, cls:"risk-ok", text:"Keine Zusatzfolge"},
+  {roll:4, name:"Unruhiger Sog", world:{}, cls:"risk-ok", text:"Keine Zusatzfolge"},
+  {roll:5, name:"Klarer Fluss", world:{}, cls:"risk-ok", text:"Keine Zusatzfolge"},
+  {roll:6, name:"Reiner Sog", world:{}, cls:"risk-ok", text:"Keine Zusatzfolge. Nebelwacht kann Grundkorruption verhindern (1×/Runde)."}
+];
+
+const CARDS_DATA = {
+  "Fraktionsdeck": [
+    {id:"FR01",name:"Eiserne Reserve",timing:"Sofort",text:"Erhalte 1 Stein. Eisengilde: 2 Stein."},
+    {id:"FR02",name:"Küstenhändler",timing:"Aktion",text:"Tausche 1 Ressource gegen 1 Basis. Tidenrat: +1 Gold."},
+    {id:"FR03",name:"Schleierzeichen",timing:"Sofort",text:"Sieh oberste Weltreaktionskarte. Nebelwacht darf sie unten legen."},
+    {id:"FR04",name:"Sonnensegen",timing:"Sofort",text:"Stabilität +1. Sonnenbund: +1 Nahrung."},
+    {id:"FR05",name:"Waldpfad",timing:"Aktion",text:"Bewege 1 Einheit 1 Feld. Wildklinge: +2 Felder durch Wald."},
+    {id:"FR06",name:"Aschemal",timing:"Aktion",text:"Fluchmarker auf Nachbarfeld. Grauasche zahlt 0 AP, Weltenzorn +1."},
+    {id:"FR07",name:"Baukolonne",timing:"Sofort",text:"Nächster Bau kostet 1 Basisressource weniger."},
+    {id:"FR08",name:"Lokale Miliz",timing:"Sofort",text:"Rekrutiere Einheit für 1 Nahrung (kein Gold)."},
+    {id:"FR09",name:"Grenzvertrag",timing:"Aktion",text:"Handelsabkommen. Wenn Kriegsdruck < 5: +1 SP."},
+    {id:"FR10",name:"Verborgene Pfade",timing:"Reaktion",text:"Nach Kampf: Überlebende Einheit 1 Feld zurückweichen."},
+    {id:"FR11",name:"Runenstein",timing:"Sofort",text:"Erhalte 1 Aether ODER Aetherkorruption -1."},
+    {id:"FR12",name:"Bollwerk",timing:"Reaktion",text:"Eigene Siedlung/Festung: +1 Verteidigung in diesem Kampf."},
+    {id:"FR13",name:"Volksrat",timing:"Sofort",text:"Erhalte 1 Nahrung und 1 Holz, wenn ≤ 2 Siedlungen."},
+    {id:"FR14",name:"Schwarzer Markt",timing:"Aktion",text:"Erhalte 1 Gold. Wirtschaft +1, Weltenzorn +1."},
+    {id:"FR15",name:"Eid der Heimat",timing:"Sofort",text:"Wähle Heimatfeld: +1 passende Ressource diese Runde."}
+  ],
+  "Forschungsdeck": [
+    {id:"FO01",name:"Effiziente Speicher",timing:"Dauerhaft",text:"Ressourcenlimit +3."},
+    {id:"FO02",name:"Bessere Werkzeuge",timing:"Dauerhaft",text:"1× pro Runde: Bau kostet 1 Holz oder Stein weniger."},
+    {id:"FO03",name:"Aetherlinsen",timing:"Dauerhaft",text:"Bei Aether anzapfen: 1× pro Runde Risiko-Wurf ±1 verändern."},
+    {id:"FO04",name:"Steinarchitektur",timing:"Dauerhaft",text:"Eigene Festungen: +1 Verteidigung."},
+    {id:"FO05",name:"Ernteplanung",timing:"Dauerhaft",text:"Erste Nahrungsproduktion pro Runde: +1 Nahrung."},
+    {id:"FO06",name:"Handelsregister",timing:"Dauerhaft",text:"Erstes Handelsabkommen im Spiel: +1 SP."},
+    {id:"FO07",name:"Heilkunde",timing:"Sofort",text:"Aetherkorruption -2 ODER Stabilität +2."},
+    {id:"FO08",name:"Kartografie",timing:"Dauerhaft",text:"Fluss/Ruinen-Bewegung ohne Sonderregel."},
+    {id:"FO09",name:"Wachtürme",timing:"Dauerhaft",text:"Eigene Siedlung angegriffen: +1 Verteidigung mit benachbarter Einheit."},
+    {id:"FO10",name:"Aetherdämpfer",timing:"Dauerhaft",text:"Aetherwunde überladen: Weltenzorn +1 weniger."},
+    {id:"FO11",name:"Verwaltung",timing:"Dauerhaft",text:"Erste Stadtaufwertung im Spiel: 1 Gold weniger."},
+    {id:"FO12",name:"Schiffsrouten",timing:"Dauerhaft",text:"Küstenfelder: 1× pro Runde +1 Gold Produktion."},
+    {id:"FO13",name:"Forstwirtschaft",timing:"Dauerhaft",text:"Waldproduktion: 1× pro Runde +1 Holz wenn Naturgleichgewicht ≥ 50."},
+    {id:"FO14",name:"Krisenrat",timing:"Reaktion",text:"Katastrophe: Reduziere einen Verlust deiner Fraktion um 1."},
+    {id:"FO15",name:"Kampfdisziplin",timing:"Dauerhaft",text:"1× pro Runde: Nach Kampfwurf +1 addieren."}
+  ],
+  "Weltreaktionsdeck": [
+    {id:"WR01",name:"Leichte Erschütterung",timing:"Welt-Tick",text:"Weltenzorn +1. Bei ≥ 20: auch Aetherkorruption +1."},
+    {id:"WR02",name:"Gute Ernte",timing:"Welt-Tick",text:"Alle Fraktionen mit Ebene: +1 Nahrung."},
+    {id:"WR03",name:"Handelswind",timing:"Welt-Tick",text:"Wirtschaft +2. Tidenrat: +1 Gold."},
+    {id:"WR04",name:"Nebelzug",timing:"Welt-Tick",text:"Schleierquellen: nächste Produktion +1 Aether."},
+    {id:"WR05",name:"Waldatem",timing:"Welt-Tick",text:"Naturgleichgewicht +2. Wildklinge mit Naturschutz: +1 SP."},
+    {id:"WR06",name:"Grenzkonflikt",timing:"Welt-Tick",text:"Kriegsdruck +2. Bei ≥ 10: alle verlieren 1 zufällige Basisressource."},
+    {id:"WR07",name:"Aethersturm",timing:"Welt-Tick",text:"Aetherkorruption +2. Überladene Wunden: Weltenzorn +1."},
+    {id:"WR08",name:"Stille Runde",timing:"Welt-Tick",text:"Keine Katastrophe wenn Stabilität ≥ 50."},
+    {id:"WR09",name:"Steinschlag",timing:"Welt-Tick",text:"Gebirge-Fraktion: +1 Stein. Bei Stab. ≤ 25 nur Eisengilde."},
+    {id:"WR10",name:"Ascheregen",timing:"Welt-Tick",text:"Aschefelder produzieren nächste Runde nicht. Grauasche: 1 Feld ignorieren."},
+    {id:"WR11",name:"Marktfrieden",timing:"Welt-Tick",text:"Handelsabkommen geschlossen: Stabilität +1, Wirtschaft +1."},
+    {id:"WR12",name:"Rissflimmern",timing:"Welt-Tick",text:"Nächster Risiko-Wurf: -1 (min. 1)."},
+    {id:"WR13",name:"Aufbegehren",timing:"Welt-Tick",text:"SP-Führender verliert 1 Ressource. Bei Gleichstand: keine Wirkung."},
+    {id:"WR14",name:"Heilender Regen",timing:"Welt-Tick",text:"Aetherkorruption -1, Naturgleichgewicht +1."},
+    {id:"WR15",name:"Schwelender Zorn",timing:"Welt-Tick",text:"Weltenzorn ≥ 30: sofort Katastrophenprüfung. Sonst: Weltenzorn +1."}
+  ],
+  "Taktikdeck": [
+    {id:"TA01",name:"Flankenangriff",timing:"Kampf",text:"Angreifer +1 Kampf."},
+    {id:"TA02",name:"Schildwall",timing:"Kampf",text:"Verteidiger +1 Kampf."},
+    {id:"TA03",name:"Rückzug",timing:"Kampf",text:"Nach Niederlage: Einheit auf eigenes Nachbarfeld statt entfernt."},
+    {id:"TA04",name:"Überraschungszug",timing:"Aktion",text:"Vor Angriff: Einheit 1 zusätzliches Feld bewegen."},
+    {id:"TA05",name:"Versorgungszug",timing:"Sofort",text:"Erhalte 1 Nahrung oder 1 Holz."},
+    {id:"TA06",name:"Belagerung",timing:"Kampf",text:"Gegen Gebäude: +1 Kampf."},
+    {id:"TA07",name:"Späher",timing:"Sofort",text:"Sieh zufällige Handkarte eines Gegners oder oberste Deckkarte."},
+    {id:"TA08",name:"Verstärkung",timing:"Reaktion",text:"Einheit würde entfernt: Zahle 1 Nahrung, platziere in Heimat neu."},
+    {id:"TA09",name:"Günstiger Wind",timing:"Aktion",text:"Küstenbewegung oder Handelsabkommen kostet 0 AP."},
+    {id:"TA10",name:"Steinwurf",timing:"Kampf",text:"Auf Gebirge oder Asche: +1 Kampf."},
+    {id:"TA11",name:"Nebelmanöver",timing:"Kampf",text:"Kampf auf Schleierquelle/Aetherwunde: W8 neu würfeln."},
+    {id:"TA12",name:"Blockade",timing:"Aktion",text:"Gegnerisches Nachbarfeld produziert nächste Produktion nicht."},
+    {id:"TA13",name:"Geländevorteil",timing:"Kampf",text:"Kampf auf eigenem Heimatgelände: +1 Kampf."},
+    {id:"TA14",name:"Notlager",timing:"Sofort",text:"Siedlung mit 1 Ressource weniger, wenn ≤ 1 Siedlung."},
+    {id:"TA15",name:"Letzter Stand",timing:"Kampf",text:"Weniger SP als Gegner: +2 Kampf."}
+  ]
+};
+
+const SECRET_OBJECTIVES = [
+  {id:"GZ01",name:"Stille Expansion",points:3,text:"Kontrolliere am Ende ≥ 5 Siedlungen/Städte."},
+  {id:"GZ02",name:"Aetherhüter",points:3,text:"Reinige ≥ 2 Wunden oder kontrolliere 2 Schleierquellen."},
+  {id:"GZ03",name:"Grenzfestung",points:3,text:"Besitze am Ende ≥ 2 Festungen auf verschiedenen Geländetypen."},
+  {id:"GZ04",name:"Handelsnetz",points:3,text:"Schliesse ≥ 3 Abkommen mit ≥ 2 verschiedenen Fraktionen."},
+  {id:"GZ05",name:"Herr der Mitte",points:4,text:"Kontrolliere am Ende ≥ 3 Felder der Zentralebene."},
+  {id:"GZ06",name:"Kein unnötiger Krieg",points:3,text:"Ende mit ≥ 10 SP und höchstens 2 Angriffen."},
+  {id:"GZ07",name:"Rissmeister",points:4,text:"Baue oder überlade insgesamt 2 Aetherwunden."},
+  {id:"GZ08",name:"Naturvertrag",points:3,text:"Führe ≥ 3× Natur schützen durch."},
+  {id:"GZ09",name:"Städtebund",points:4,text:"Besitze am Ende ≥ 3 Städte."},
+  {id:"GZ10",name:"Rohstoffmacht",points:3,text:"Besitze am Ende einer Runde ≥ 8 Ressourcen."},
+  {id:"GZ11",name:"Grenzbrecher",points:3,text:"Erobere ≥ 2 gegnerische oder neutrale Schlüsselorte."},
+  {id:"GZ12",name:"Weltstifter",points:4,text:"Erhalte ≥ 5 Stabilität durch eigene Aktionen."},
+  {id:"GZ13",name:"Schattensieg",points:3,text:"Erfülle kein anderes Ziel, aber kontrolliere ≥ 2 Aetherorte."},
+  {id:"GZ14",name:"Keine leeren Hände",points:2,text:"Ende mit ≥ 1 Nahrung, Holz, Stein und Gold."},
+  {id:"GZ15",name:"Runder Taktiker",points:3,text:"Nutze in ≥ 4 Runden alle 3 AP vollständig."},
+  {id:"GZ16",name:"Abseits der Heimat",points:3,text:"Kontrolliere am Ende ≥ 3 Felder nicht an Heimatplatte."},
+  {id:"GZ17",name:"Letzte Bastion",points:4,text:"Besitze am Ende Festung und Stadt auf Nachbarfeldern."},
+  {id:"GZ18",name:"Balance der Welt",points:4,text:"Spielende: Stabilität ≥ 50 und Naturgleichgewicht ≥ 50."}
+];
+
+// ── GAME STATE ─────────────────────────────────────────────────────────────────
+
+let G = null; // Game state
+
+function createInitialState(playerDefs) {
+  const decks = {};
+  for (const [name, cards] of Object.entries(CARDS_DATA)) {
+    decks[name] = shuffle([...cards.map(c => c.id)]);
+  }
+
+  const players = playerDefs.map(pd => {
+    const faction = FACTIONS.find(f => f.id === pd.factionId);
+    return {
+      id: pd.id,
+      name: pd.name,
+      factionId: pd.factionId,
+      factionName: faction.name,
+      ap: 3,
+      score: 0,
+      resources: {...faction.start},
+      hand: [],
+      secret_objectives: [],
+      used_once_per_round: [],
+      used_once_per_game: [],
+      active_effects: []
+    };
+  });
+
+  return {
+    version: "0.96",
+    game_id: "game_" + Date.now(),
+    round: 1,
+    current_player_idx: 0,
+    players,
+    world: {...WORLD_INITIAL},
+    decks,
+    discard_piles: {"Fraktionsdeck":[],"Forschungsdeck":[],"Weltreaktionsdeck":[],"Taktikdeck":[]},
+    log: [],
+    world_memory: createInitialWorldMemory(players),
+    started: true
+  };
+}
+
+// ── UTILITY ────────────────────────────────────────────────────────────────────
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function rollDice(sides) { return Math.floor(Math.random() * sides) + 1; }
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+function getPlayer(idx) {
+  if (!G) return null;
+  return G.players[idx !== undefined ? idx : G.current_player_idx];
+}
+
+function getFaction(id) { return FACTIONS.find(f => f.id === id); }
+
+function getCardById(id) {
+  for (const cards of Object.values(CARDS_DATA)) {
+    const c = cards.find(c => c.id === id);
+    if (c) return c;
+  }
+  return null;
+}
+
+function totalResources(p) {
+  return Object.values(p.resources).reduce((s,v) => s + v, 0);
+}
+
+function addLog(entry, type = "action") {
+  if (!G) return;
+  const t = new Date().toLocaleTimeString('de-DE', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  G.log.unshift({time: t, text: entry, type});
+  if (G.log.length > 500) G.log.pop();
+  renderLog();
+}
+
+function applyWorldDelta(delta, source) {
+  if (!delta || !G) return;
+  const changes = [];
+  for (const [key, val] of Object.entries(delta)) {
+    if (G.world[key] !== undefined) {
+      const range = WORLD_RANGES[key] || [0, 100];
+      const before = G.world[key];
+      G.world[key] = clamp(G.world[key] + val, range[0], range[1]);
+      if (G.world[key] !== before) {
+        const sign = val > 0 ? "+" : "";
+        changes.push(`${key} ${sign}${val} → ${G.world[key]}`);
+      }
+    }
+  }
+  if (changes.length > 0) {
+    addLog(`${source}: ${changes.join(", ")}`, "world");
+  }
+  checkWarnings();
+}
+
+function checkWarnings() {
+  if (!G) return;
+  const warns = [];
+  if (G.world.Weltenzorn >= 20) warns.push(`⚠ Weltenzorn ${G.world.Weltenzorn} ≥ 20 — Katastrophenprüfung!`);
+  if (G.world.Aetherkorruption >= 25) warns.push(`⚠ Aetherkorruption ${G.world.Aetherkorruption} ≥ 25 — Katastrophenprüfung!`);
+  if (G.world.Stabilität <= 25) warns.push(`⚠ Stabilität ${G.world.Stabilität} ≤ 25 — Katastrophenprüfung!`);
+  if (G.world.Naturgleichgewicht <= 25) warns.push(`⚠ Naturgleichgewicht ${G.world.Naturgleichgewicht} ≤ 25 — Katastrophenprüfung!`);
+  if (G.world.Kriegsdruck >= 10) warns.push(`⚠ Kriegsdruck ${G.world.Kriegsdruck} ≥ 10 — alle verlieren 1 Basisressource!`);
+  const bar = document.getElementById('warnings-bar');
+  if (bar) {
+    if (warns.length > 0) {
+      bar.style.display = 'block';
+      bar.innerHTML = warns.join('<br>');
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function saveToStorage() {
+  if (G) {
+    try { localStorage.setItem('aethoria_v096', JSON.stringify(G)); } catch(e) {}
+  }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('aethoria_v096');
+    if (raw) G = JSON.parse(raw);
+  } catch(e) {}
+}
+
+// ── SETUP ────────────────────────────────────────────────────────────────────
+
+function updateSetupCards() {
+  const n = parseInt(document.getElementById('player-count-select').value);
+  const grid = document.getElementById('setup-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const factionOptions = FACTIONS.map(f =>
+      `<option value="${f.id}">${f.name}</option>`
+    ).join('');
+    grid.innerHTML += `
+      <div class="player-setup-card">
+        <h3>Spieler ${i + 1}</h3>
+        <div class="form-row">
+          <label>Name</label>
+          <input type="text" id="p${i}-name" placeholder="Spieler ${i+1}" value="Spieler ${i+1}">
+        </div>
+        <div class="form-row">
+          <label>Fraktion</label>
+          <select id="p${i}-faction">${factionOptions}</select>
+        </div>
+      </div>
+    `;
+    // set default faction
+    setTimeout(() => {
+      const sel = document.getElementById(`p${i}-faction`);
+      if (sel) sel.value = FACTIONS[i % FACTIONS.length].id;
+    }, 0);
+  }
+  renderFactionOverview();
+}
+
+function renderFactionOverview() {
+  const el = document.getElementById('faction-overview');
+  if (!el) return;
+  el.innerHTML = FACTIONS.map(f => `
+    <div style="background:var(--bg3);border:1px solid ${f.color}33;border-left:3px solid ${f.color};border-radius:5px;padding:10px">
+      <div style="font-family:'Cinzel',serif;font-size:0.8rem;color:${f.color};margin-bottom:4px">${f.name}</div>
+      <div class="text-xs text-muted" style="margin-bottom:6px">${f.hint} · Heimat: ${f.home}</div>
+      <div class="text-xs" style="margin-bottom:4px">Start: ${Object.entries(f.start).filter(([,v])=>v>0).map(([k,v])=>`${v} ${k}`).join(', ')}</div>
+      <div style="font-size:0.7rem;color:var(--text2);margin-top:4px">${f.bonuses.slice(0,2).map(b=>`• ${b}`).join('<br>')}</div>
+      <div style="font-size:0.7rem;color:var(--aether2);margin-top:4px">SA: ${f.sa.name} (${f.sa.cost})</div>
+    </div>
+  `).join('');
+}
+
+function startGame() {
+  const n = parseInt(document.getElementById('player-count-select').value);
+  const playerDefs = [];
+  const usedFactions = new Set();
+  for (let i = 0; i < n; i++) {
+    const name = document.getElementById(`p${i}-name`).value.trim() || `Spieler ${i+1}`;
+    const factionId = document.getElementById(`p${i}-faction`).value;
+    if (usedFactions.has(factionId)) {
+      alert(`Fraktion ${FACTIONS.find(f=>f.id===factionId).name} wird doppelt gewählt. Bitte verschiedene Fraktionen wählen.`);
+      return;
+    }
+    usedFactions.add(factionId);
+    playerDefs.push({ id: i, name, factionId });
+  }
+  G = createInitialState(playerDefs);
+  ensureWorldMemory();
+  addMemoryTimeline(`Spielstart: ${G.players.length} Fraktionen betreten Aethoria.`, "setup");
+  addLog("=== NEUES SPIEL GESTARTET ===", "round");
+  addLog(`Spieler: ${G.players.map(p=>p.name+' ('+p.factionName+')').join(', ')}`, "action");
+  G.players.forEach(p => {
+    const res = Object.entries(p.resources).filter(([,v])=>v>0).map(([k,v])=>`${v} ${k}`).join(', ');
+    addLog(`${p.name} startet mit: ${res}`, "action");
+  });
+  saveToStorage();
+  showView('dashboard');
+  renderAll();
+  populateCombatSelects();
+  populateAetherSelect();
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const view = document.getElementById(name + '-view');
+  if (view) view.classList.add('active');
+  const nav = Array.from(document.querySelectorAll('.nav-tab')).find(t => (t.getAttribute('onclick') || '').includes(`'${name}'`));
+  if (nav) nav.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'players') renderPlayers();
+  if (name === 'actions') renderActionsView();
+  if (name === 'world') renderWorldView();
+  if (name === 'memory') renderMemoryView();
+  if (name === 'combat') renderCombatRef();
+  if (name === 'cards') renderCardsView();
+  if (name === 'log') renderLog();
+  if (name === 'aether') renderAetherView();
+}
+
+function renderAll() {
+  if (!G) return;
+  document.getElementById('round-display').textContent = `Runde ${G.round} / 10`;
+  renderDashboard();
+  renderPlayers();
+  renderWorldView();
+  renderMemoryView();
+  renderLog();
+  checkWarnings();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+
+function renderDashboard() {
+  if (!G) return;
+  const p = getPlayer();
+  document.getElementById('db-active-player').textContent = p ? `${p.name} · ${p.factionName}` : '—';
+
+  // Player summary
+  const sumEl = document.getElementById('db-player-summary');
+  if (sumEl && p) {
+    const faction = getFaction(p.factionId);
+    sumEl.innerHTML = `
+      <div class="flex-row">
+        ${apDotsHtml(p.ap, 3)}
+        <span class="text-sm text-muted" style="margin-left:4px">AP verbleibend</span>
+      </div>
+      <div class="mt-8 text-sm">
+        ${Object.entries(p.resources).filter(([,v])=>v>0).map(([k,v])=>`
+          <span style="color:${k==='Aether'?'var(--aether2)':'var(--white)'}">
+            ${v} ${k}
+          </span>
+        `).join(' · ')}
+      </div>
+      <div class="mt-8 text-xs text-muted">SP: <span class="text-gold" style="font-family:'Cinzel',serif;font-size:1.1rem">${p.score}</span></div>
+    `;
+  }
+
+  // World summary
+  const wEl = document.getElementById('db-world-summary');
+  if (wEl) {
+    const worldItems = Object.entries(G.world).map(([k, v]) => {
+      const range = WORLD_RANGES[k] || [0, 100];
+      const pct = ((v - range[0]) / (range[1] - range[0])) * 100;
+      const isWarn = checkWorldWarn(k, v);
+      const barColor = isWarn ? 'var(--danger)' : (k==='Aetherkorruption'||k==='Weltenzorn'?'var(--aether)':'var(--ok)');
+      return `<div style="margin-bottom:6px">
+        <div class="flex-row" style="justify-content:space-between;margin-bottom:2px">
+          <span class="text-xs ${isWarn?'text-danger':'text-muted'}">${k}</span>
+          <span class="text-xs" style="font-family:'Cinzel',serif;color:${isWarn?'var(--danger)':'var(--text)'}">${v}</span>
+        </div>
+        <div class="world-bar"><div class="world-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>`;
+    }).join('');
+    wEl.innerHTML = worldItems;
+  }
+
+  // Scores
+  const scEl = document.getElementById('db-scores');
+  if (scEl) {
+    const sorted = [...G.players].sort((a, b) => b.score - a.score);
+    scEl.innerHTML = sorted.map((p, i) => {
+      const faction = getFaction(p.factionId);
+      return `<div class="flex-row" style="padding:5px 0;border-bottom:1px solid var(--border);justify-content:space-between">
+        <div class="flex-row">
+          <span style="font-family:'Cinzel',serif;font-size:0.75rem;color:var(--text2);width:18px">${i+1}.</span>
+          <span style="color:${faction.color};font-weight:600">${p.name}</span>
+          <span class="text-xs text-muted">${p.factionName}</span>
+        </div>
+        <span style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold2)">${p.score} SP</span>
+      </div>`;
+    }).join('');
+  }
+}
+
+function checkWorldWarn(k, v) {
+  const w = WORLD_WARN[k];
+  if (!w) return false;
+  if (w.min !== undefined && v >= w.min) return true;
+  if (w.max !== undefined && v <= w.max) return true;
+  return false;
+}
+
+// ── PLAYER TURN MANAGEMENT ────────────────────────────────────────────────────
+
+function nextPlayer() {
+  if (!G) return;
+  const p = getPlayer();
+  addLog(`${p.name} beendet Zug (${3 - p.ap} AP genutzt)`, "action");
+  G.current_player_idx = (G.current_player_idx + 1) % G.players.length;
+  renderAll();
+  renderActionsView();
+}
+
+function prevPlayer() {
+  if (!G) return;
+  G.current_player_idx = (G.current_player_idx - 1 + G.players.length) % G.players.length;
+  renderAll();
+  renderActionsView();
+}
+
+function nextRound() {
+  if (!G) return;
+  finalizeRoundMemory(false);
+  // Reset AP and once-per-round flags
+  G.players.forEach(p => {
+    p.ap = 3;
+    p.used_once_per_round = [];
+  });
+  G.current_player_idx = 0;
+  G.round++;
+  addLog(`═══ Runde ${G.round} beginnt ═══`, "round");
+
+  // Aetherwunde Score: +1 SP per controlled aether wound at round end (manual tracking)
+  if (G.round > 10) {
+    endGame();
+    return;
+  }
+  renderAll();
+  renderActionsView();
+  saveToStorage();
+  document.getElementById('round-display').textContent = `Runde ${G.round} / 10`;
+}
+
+// ── PLAYERS VIEW ──────────────────────────────────────────────────────────────
+
+function apDotsHtml(current, max) {
+  let html = '';
+  for (let i = 0; i < max; i++) {
+    const avail = i < current;
+    html += `<div class="ap-dot ${avail ? 'available' : 'used'}"></div>`;
+  }
+  return html;
+}
+
+function renderPlayers() {
+  if (!G) return;
+  const grid = document.getElementById('players-grid');
+  if (!grid) return;
+  grid.innerHTML = G.players.map((p, idx) => {
+    const faction = getFaction(p.factionId);
+    const isActive = idx === G.current_player_idx;
+    const res = p.resources;
+    return `
+    <div class="player-card ${isActive?'active-player':''}">
+      <div class="player-card-header" style="background:${faction.color}22;border-bottom:1px solid ${faction.color}44">
+        <div>
+          <div class="player-card-name" style="color:${faction.color}">${p.name}</div>
+          <div class="faction-badge" style="border-color:${faction.color}66;color:${faction.color}">
+            ${p.factionName} · ${faction.home}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="player-card-score">${p.score} SP</div>
+          ${isActive?'<div class="text-xs" style="color:var(--gold)">◈ AKTIV</div>':''}
+        </div>
+      </div>
+      <div class="player-card-body">
+        <div class="ap-bar">
+          ${apDotsHtml(p.ap, 3)}
+          <span class="ap-label">${p.ap} / 3 AP</span>
+          <div style="margin-left:auto;display:flex;gap:4px">
+            <button class="btn btn-secondary btn-small" onclick="modAP(${idx},-1)" ${p.ap<=0?'disabled':''}>-AP</button>
+            <button class="btn btn-secondary btn-small" onclick="modAP(${idx},1)" ${p.ap>=3?'disabled':''}>+AP</button>
+          </div>
+        </div>
+        <div class="resources-grid">
+          ${['Nahrung','Holz','Stein','Gold','Aether'].map(r => `
+            <div class="resource-cell">
+              <span class="res-label">${r.slice(0,3)}</span>
+              <div class="res-value ${r==='Aether'?'aether':''}">
+                <button class="res-btn" onclick="modRes(${idx},'${r}',-1)">−</button>
+                ${res[r]}
+                <button class="res-btn" onclick="modRes(${idx},'${r}',1)">+</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="text-xs text-muted" style="margin-top:4px">
+          Gesamt: ${totalResources(p)} Ressourcen
+        </div>
+        <hr class="separator">
+        <div class="text-xs text-muted" style="margin-bottom:4px">FRAKTIONSBONI</div>
+        ${faction.bonuses.map(b=>`<div class="faction-info-row">• ${b}</div>`).join('')}
+        <div class="faction-info-row" style="border-left:2px solid var(--aether);padding-left:6px;margin-top:4px">
+          <strong style="color:var(--aether2)">SA:</strong> ${faction.sa.name} (${faction.sa.cost})<br>
+          <span style="font-size:0.72rem;color:var(--text2)">${faction.sa.text}</span>
+        </div>
+        ${p.secret_objectives.length > 0 ? `
+          <hr class="separator">
+          <div class="text-xs text-muted" style="margin-bottom:4px">GEHEIMZIEL</div>
+          ${p.secret_objectives.map(gzId => {
+            const gz = SECRET_OBJECTIVES.find(g=>g.id===gzId);
+            return gz ? `<div class="faction-info-row" style="border-left:2px solid var(--gold)">
+              <strong style="color:var(--gold)">${gz.name} (${gz.points} SP)</strong><br>
+              <span style="font-size:0.72rem">${gz.text}</span>
+            </div>` : '';
+          }).join('')}
+        ` : ''}
+        ${p.hand.length > 0 ? `
+          <hr class="separator">
+          <div class="text-xs text-muted" style="margin-bottom:4px">HANDKARTEN (${p.hand.length})</div>
+          ${p.hand.map(cId => {
+            const c = getCardById(cId);
+            return c ? `<div class="card-item" style="margin-bottom:4px">
+              <div class="card-timing">${c.timing}</div>
+              <div class="card-name-display">${c.name}</div>
+              <div class="card-text">${c.text}</div>
+              <button class="btn btn-secondary btn-small" style="margin-top:4px" onclick="discardCard(${idx},'${cId}')">Abwerfen</button>
+            </div>` : '';
+          }).join('')}
+        ` : ''}
+        <hr class="separator">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-small" onclick="addScore(${idx},1)">+1 SP</button>
+          <button class="btn btn-secondary btn-small" onclick="addScore(${idx},-1)">-1 SP</button>
+          ${isActive?'':'<button class="btn btn-secondary btn-small" onclick="setActivePlayer('+idx+')">Als aktiv setzen</button>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function modAP(idx, delta) {
+  if (!G) return;
+  const p = G.players[idx];
+  const before = p.ap;
+  p.ap = clamp(p.ap + delta, 0, 3);
+  if (p.ap !== before) {
+    addLog(`${p.name}: AP ${delta > 0 ? '+' : ''}${delta} → ${p.ap}`, "action");
+    saveToStorage();
+    renderPlayers();
+    renderDashboard();
+    renderActionsView();
+  }
+}
+
+function modRes(idx, res, delta) {
+  if (!G) return;
+  const p = G.players[idx];
+  const before = p.resources[res] || 0;
+  p.resources[res] = Math.max(0, before + delta);
+  if (p.resources[res] !== before) {
+    const sign = delta > 0 ? '+' : '';
+    addLog(`${p.name}: ${res} ${sign}${delta} → ${p.resources[res]}`, "action");
+    saveToStorage();
+    renderPlayers();
+    renderDashboard();
+  }
+}
+
+function addScore(idx, delta) {
+  if (!G) return;
+  const p = G.players[idx];
+  p.score = Math.max(0, p.score + delta);
+  const sign = delta > 0 ? '+' : '';
+  addLog(`${p.name}: Siegpunkte ${sign}${delta} → ${p.score}`, "action");
+  saveToStorage();
+  renderPlayers();
+  renderDashboard();
+}
+
+function setActivePlayer(idx) {
+  if (!G) return;
+  G.current_player_idx = idx;
+  renderAll();
+  renderActionsView();
+}
+
+function discardCard(playerIdx, cardId) {
+  if (!G) return;
+  const p = G.players[playerIdx];
+  const c = getCardById(cardId);
+  p.hand = p.hand.filter(id => id !== cardId);
+  const deckName = c ? Object.keys(CARDS_DATA).find(d => CARDS_DATA[d].some(cd => cd.id === cardId)) : null;
+  if (deckName) G.discard_piles[deckName].push(cardId);
+  addLog(`${p.name} wirft ab: ${c?.name || cardId}`, "action");
+  saveToStorage();
+  renderPlayers();
+  renderCardsView();
+}
+
+// ── ACTIONS VIEW ──────────────────────────────────────────────────────────────
+
+function renderActionsView() {
+  if (!G) return;
+  const p = getPlayer();
+  if (!p) return;
+  const faction = getFaction(p.factionId);
+
+  // Player info
+  const infoEl = document.getElementById('action-player-info');
+  if (infoEl) {
+    infoEl.innerHTML = `
+      <div class="flex-row">
+        <div>
+          <div style="font-family:'Cinzel',serif;color:${faction.color};font-size:0.95rem">${p.name}</div>
+          <div class="text-xs text-muted">${p.factionName} · ${faction.home}</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div class="ap-bar">${apDotsHtml(p.ap, 3)}</div>
+          <div class="text-xs text-muted">${p.ap} AP verbleibend</div>
+        </div>
+      </div>
+      <div class="mt-8 text-sm">
+        ${['Nahrung','Holz','Stein','Gold','Aether'].map(r =>
+          `<span style="color:${r==='Aether'?'var(--aether2)':'var(--text)'}">
+            ${p.resources[r]||0} ${r.slice(0,3)}
+          </span>`
+        ).join(' · ')}
+      </div>
+    `;
+  }
+
+  // Player selector
+  const selEl = document.getElementById('action-player-select');
+  if (selEl) {
+    selEl.innerHTML = G.players.map((pl, idx) => `
+      <button class="btn ${idx===G.current_player_idx?'btn-primary':'btn-secondary'} btn-small"
+        onclick="setActivePlayer(${idx})">${pl.name}</button>
+    `).join('');
+  }
+
+  // Actions list
+  const listEl = document.getElementById('action-list');
+  if (!listEl) return;
+  listEl.innerHTML = ACTIONS.map(action => {
+    const check = canDoAction(p, action);
+    const costStr = formatCost(action);
+    const worldStr = action.world ? ' · ' + Object.entries(action.world).map(([k,v])=>`${k} ${v>0?'+':''}${v}`).join(', ') : '';
+    const scoreStr = action.score ? ` · +${action.score} SP` : '';
+
+    return `
+      <div class="action-item ${check.ok?'':'disabled'}">
+        <div style="flex:1">
+          <div class="action-name">${action.name}</div>
+          <div class="action-cost">${costStr}${worldStr}${scoreStr}</div>
+          ${action.text ? `<div class="text-xs text-muted">${action.text}</div>` : ''}
+          ${action.note ? `<div class="text-xs" style="color:var(--aether2)">${action.note}</div>` : ''}
+          ${!check.ok ? `<div class="action-reason">${check.reason}</div>` : ''}
+        </div>
+        ${check.ok ? `<button class="btn btn-primary btn-small" onclick="doAction('${action.id}')">Ausführen</button>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function formatCost(action) {
+  const parts = [];
+  if (action.ap > 0) parts.push(`${action.ap} AP`);
+  for (const [k, v] of Object.entries(action.cost || {})) {
+    if (v > 0) parts.push(`${v} ${k}`);
+  }
+  return parts.join(', ') || '0 AP (kostenlos)';
+}
+
+function canDoAction(p, action) {
+  // AP check
+  if (p.ap < action.ap) return { ok: false, reason: `Zu wenig AP (${p.ap} < ${action.ap})` };
+  // Resource check
+  for (const [res, amount] of Object.entries(action.cost || {})) {
+    if ((p.resources[res] || 0) < amount) {
+      return { ok: false, reason: `Zu wenig ${res} (${p.resources[res]||0} < ${amount})` };
+    }
+  }
+  // Once-per-player-round check
+  if (action.once_per_player_round && p.used_once_per_round.includes(action.id)) {
+    return { ok: false, reason: '1×/Runde bereits genutzt' };
+  }
+  // Trade agreement: SP only if Kriegsdruck < 5 (not a blocker, just info)
+  return { ok: true };
+}
+
+function doAction(actionId) {
+  if (!G) return;
+  const p = getPlayer();
+  const action = ACTIONS.find(a => a.id === actionId);
+  if (!action) return;
+
+  const check = canDoAction(p, action);
+  if (!check.ok) { alert(check.reason); return; }
+
+  // Deduct AP
+  p.ap -= action.ap;
+
+  // Deduct resources
+  for (const [res, amount] of Object.entries(action.cost || {})) {
+    p.resources[res] = (p.resources[res] || 0) - amount;
+  }
+
+  // Apply score
+  let scoreGained = action.score || 0;
+  if (actionId === 'trade_agreement') {
+    if (G.world.Kriegsdruck < 5) {
+      scoreGained = 1;
+      addLog(`${p.name}: Handelsabkommen — Kriegsdruck < 5 → +1 SP`, "action");
+    } else {
+      addLog(`${p.name}: Handelsabkommen — Kriegsdruck ≥ 5, kein SP`, "action");
+    }
+  }
+  // Wildklinge: Natur schützen → +1 SP (faction bonus)
+  if (actionId === 'protect_nature' && p.factionId === 'wildklinge') {
+    scoreGained += 1;
+  }
+  if (scoreGained > 0) p.score += scoreGained;
+
+  // Apply world delta
+  if (action.world) applyWorldDelta(action.world, `${p.name} · ${action.name}`);
+
+  // Once-per-round flag
+  if (action.once_per_player_round) p.used_once_per_round.push(action.id);
+
+  // Faction specific
+  if (actionId === 'build_fortress') {
+    applyWorldDelta({Stabilität:1}, `${p.name} · Eisengilde-Bonus (Festung)`);
+  }
+
+  const costLog = [action.ap > 0 ? `${action.ap} AP` : null,
+    ...Object.entries(action.cost||{}).filter(([,v])=>v>0).map(([k,v])=>`${v} ${k}`)].filter(Boolean).join(', ');
+  addLog(`${p.name} → ${action.name}${costLog?` (${costLog})`:''}${scoreGained>0?` +${scoreGained} SP`:''}`, "action");
+  rememberAction(p, actionId, action, scoreGained);
+
+  saveToStorage();
+  renderActionsView();
+  renderPlayers();
+  renderDashboard();
+}
+
+// ── WORLD VIEW ────────────────────────────────────────────────────────────────
+
+function renderWorldView() {
+  if (!G) return;
+  const grid = document.getElementById('world-grid');
+  if (!grid) return;
+
+  const worldColors = {
+    Stabilität: 'var(--ok)',
+    Aetherkorruption: 'var(--aether)',
+    Kriegsdruck: 'var(--danger)',
+    Wirtschaft: 'var(--gold)',
+    Naturgleichgewicht: 'var(--ok)',
+    Weltenzorn: 'var(--danger)'
+  };
+
+  grid.innerHTML = Object.entries(G.world).map(([key, val]) => {
+    const range = WORLD_RANGES[key] || [0, 100];
+    const pct = ((val - range[0]) / (range[1] - range[0])) * 100;
+    const isWarn = checkWorldWarn(key, val);
+    const color = worldColors[key] || 'var(--gold)';
+
+    return `
+      <div class="world-cell">
+        <span class="wc-label" style="color:${isWarn?'var(--warn)':'var(--text2)'}">${key}</span>
+        <div class="wc-value" style="color:${isWarn?'var(--warn)':color}">${val}</div>
+        <div class="world-bar">
+          <div class="world-bar-fill" style="width:${pct}%;background:${isWarn?'var(--warn)':color}"></div>
+        </div>
+        <div class="text-xs text-muted">${range[0]} – ${range[1]}</div>
+        ${isWarn ? `<span class="warn-badge">⚠ Grenze!</span>` : ''}
+        <div class="wc-controls mt-8">
+          <button class="wc-btn" onclick="modWorld('${key}',-1)">−1</button>
+          <button class="wc-btn" onclick="modWorld('${key}',-5)">−5</button>
+          <button class="wc-btn" onclick="modWorld('${key}',5)">+5</button>
+          <button class="wc-btn" onclick="modWorld('${key}',1)">+1</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  renderCatastropheStatus();
+}
+
+function modWorld(key, delta) {
+  if (!G) return;
+  const obj = {};
+  obj[key] = delta;
+  applyWorldDelta(obj, `Manuelle Korrektur`);
+  renderWorldView();
+  renderDashboard();
+  saveToStorage();
+}
+
+function renderCatastropheStatus() {
+  const el = document.getElementById('catastrophe-status');
+  if (!el || !G) return;
+  const conditions = [
+    { label: "Weltenzorn ≥ 20", met: G.world.Weltenzorn >= 20 },
+    { label: "Aetherkorruption ≥ 25", met: G.world.Aetherkorruption >= 25 },
+    { label: "Stabilität ≤ 25", met: G.world.Stabilität <= 25 },
+    { label: "Naturgleichgewicht ≤ 25", met: G.world.Naturgleichgewicht <= 25 }
+  ];
+  const triggered = conditions.some(c => c.met);
+  el.innerHTML = `
+    <div class="text-sm ${triggered?'text-danger':'text-ok'}" style="margin-bottom:8px">
+      ${triggered ? '⚠ Mindestens eine Bedingung ist erfüllt — Katastrophenprüfung empfohlen!' : '✓ Keine Bedingung erfüllt — kein Katastrophenrisiko.'}
+    </div>
+    ${conditions.map(c => `
+      <div class="text-xs" style="color:${c.met?'var(--danger)':'var(--text2)'};margin:2px 0">
+        ${c.met?'●':'○'} ${c.label}
+      </div>
+    `).join('')}
+  `;
+}
+
+function checkCatastrophe() {
+  if (!G) return;
+  const roll = rollDice(6);
+  const triggered = G.world.Weltenzorn >= 20 || G.world.Aetherkorruption >= 25 || G.world.Stabilität <= 25 || G.world.Naturgleichgewicht <= 25;
+  if (!triggered) {
+    addLog(`Katastrophenprüfung W6=${roll} — keine Bedingung erfüllt, keine Katastrophe.`, "world");
+    alert(`W6 = ${roll}\nKeine Katastrophenbedingung erfüllt — keine Wirkung.`);
+    return;
+  }
+  let msg = `W6 = ${roll} — `;
+  // Draw weltreaktion card
+  const deck = G.decks["Weltreaktionsdeck"];
+  let card = null;
+  if (deck.length > 0) {
+    const cardId = deck.shift();
+    G.discard_piles["Weltreaktionsdeck"].push(cardId);
+    card = getCardById(cardId);
+  }
+  msg += card ? `Weltreaktionskarte: "${card.name}" — ${card.text}` : 'Kein Kartenstapel mehr vorhanden.';
+  addLog(`⚡ KATASTROPHE: ${msg}`, "warn");
+  alert(`KATASTROPHE!\n${msg}`);
+  saveToStorage();
+}
+
+// ── COMBAT VIEW ───────────────────────────────────────────────────────────────
+
+function populateCombatSelects() {
+  if (!G) return;
+  ['combat-attacker','combat-defender'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = G.players.map(p => `<option value="${p.id}">${p.name} (${p.factionName})</option>`).join('');
+  });
+  if (G.players.length > 1) {
+    const defSel = document.getElementById('combat-defender');
+    if (defSel) defSel.selectedIndex = 1;
+  }
+}
+
+function rollCombat() {
+  if (!G) return;
+  const atkIdx = parseInt(document.getElementById('combat-attacker').value) || 0;
+  const defIdx = parseInt(document.getElementById('combat-defender').value) || 0;
+  if (atkIdx === defIdx) { alert('Angreifer und Verteidiger müssen verschieden sein!'); return; }
+
+  const atkBonus = parseInt(document.getElementById('combat-atk-bonus').value) || 0;
+  const defBonus = parseInt(document.getElementById('combat-def-bonus').value) || 0;
+
+  const atkRoll = rollDice(8);
+  const defRoll = rollDice(8);
+  const atkTotal = atkRoll + atkBonus;
+  const defTotal = defRoll + defBonus;
+
+  document.getElementById('combat-atk-roll').textContent = atkRoll;
+  document.getElementById('combat-def-roll').textContent = defRoll;
+  document.getElementById('combat-atk-total').textContent = atkTotal;
+  document.getElementById('combat-def-total').textContent = defTotal;
+
+  const atkWins = atkTotal > defTotal;
+  const draw = atkTotal === defTotal;
+
+  const atkEl = document.getElementById('combat-atk-total');
+  const defEl = document.getElementById('combat-def-total');
+  atkEl.className = 'combat-total ' + (atkWins ? 'combat-winner' : draw ? '' : 'combat-loser');
+  defEl.className = 'combat-total ' + (atkWins ? 'combat-loser' : draw ? '' : 'combat-winner');
+
+  const atk = G.players.find(p => p.id === atkIdx) || G.players[0];
+  const def = G.players.find(p => p.id === defIdx) || G.players[1];
+
+  let resultText, resultHtml;
+  if (draw) {
+    resultText = `Unentschieden (${atkTotal} vs ${defTotal}) — Verteidigung hält!`;
+    resultHtml = `<div class="risk-result risk-warn"><strong>UNENTSCHIEDEN</strong> — Verteidigung hält!</div>`;
+  } else if (atkWins) {
+    resultText = `${atk.name} gewinnt (${atkTotal} vs ${defTotal})`;
+    resultHtml = `<div class="risk-result risk-ok"><strong>${atk.name} GEWINNT</strong> — Verlierende Einheit entfernt oder Rückzug.</div>`;
+    // Apply Kriegsdruck
+    applyWorldDelta({Kriegsdruck: 1}, `Kampf: ${atk.name} vs ${def.name}`);
+  } else {
+    resultText = `${def.name} verteidigt (${defTotal} vs ${atkTotal})`;
+    resultHtml = `<div class="risk-result risk-bad"><strong>${def.name} VERTEIDIGT</strong> — Angreifer verliert.</div>`;
+    applyWorldDelta({Kriegsdruck: 1}, `Kampf: ${atk.name} vs ${def.name}`);
+  }
+
+  const resultEl = document.getElementById('combat-result');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = resultHtml;
+
+  addLog(`⚔ Kampf: ${atk.name} (W8=${atkRoll}+${atkBonus}=${atkTotal}) vs ${def.name} (W8=${defRoll}+${defBonus}=${defTotal}) — ${resultText}`, "combat");
+  rememberCombat(atk, def, atkWins, draw);
+  saveToStorage();
+  renderDashboard();
+}
+
+function renderCombatRef() {
+  const el = document.getElementById('combat-bonuses-ref');
+  if (!el) return;
+  el.innerHTML = FACTIONS.map(f => {
+    const combatBoni = f.bonuses.filter(b => b.toLowerCase().includes('kampf'));
+    if (combatBoni.length === 0) return '';
+    return `<div style="margin-bottom:8px">
+      <div style="font-family:'Cinzel',serif;font-size:0.75rem;color:${f.color};margin-bottom:3px">${f.name}</div>
+      ${combatBoni.map(b=>`<div class="faction-info-row">• ${b}</div>`).join('')}
+    </div>`;
+  }).join('');
+  populateCombatSelects();
+}
+
+// ── AETHER VIEW ───────────────────────────────────────────────────────────────
+
+function populateAetherSelect() {
+  if (!G) return;
+  const sel = document.getElementById('aether-player');
+  if (!sel) return;
+  sel.innerHTML = G.players.map(p => `<option value="${p.id}">${p.name} (${p.factionName})</option>`).join('');
+}
+
+function renderAetherView() {
+  if (!G) return;
+  populateAetherSelect();
+
+  const tableEl = document.getElementById('aether-risk-table');
+  if (tableEl) {
+    tableEl.innerHTML = `
+      <div class="text-xs text-muted" style="margin-bottom:8px">Basiseffekt: Aetherkorruption +1 (immer)</div>
+      ${RISK_TABLE.map(r => `
+        <div class="flex-row" style="padding:6px 8px;border-radius:4px;margin-bottom:4px;background:var(--bg3);border:1px solid var(--border)">
+          <div style="font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);width:24px">${r.roll}</div>
+          <div style="flex:1">
+            <div class="text-sm" style="font-weight:600">${r.name}</div>
+            <div class="text-xs text-muted">${r.text}</div>
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+}
+
+function rollAether() {
+  if (!G) return;
+  const selId = parseInt(document.getElementById('aether-player').value) || 0;
+  const p = G.players.find(pl => pl.id === selId) || G.players[0];
+  const mod = parseInt(document.getElementById('aether-modifier').value) || 0;
+  const rawRoll = rollDice(6);
+  const roll = Math.max(1, Math.min(6, rawRoll + mod));
+
+  const result = RISK_TABLE.find(r => r.roll === roll) || RISK_TABLE[5];
+
+  // Base effect: Aetherkorruption +1
+  applyWorldDelta({Aetherkorruption: 1}, `${p.name} · Aether anzapfen`);
+
+  // Risk effect
+  if (Object.keys(result.world).length > 0) {
+    applyWorldDelta(result.world, `${p.name} · Risiko: ${result.name}`);
+  }
+
+  const resultEl = document.getElementById('aether-result');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = `
+    <div class="risk-result ${result.cls}">
+      <div style="font-family:'Cinzel',serif;font-size:1.3rem;margin-bottom:6px">
+        W6 = ${rawRoll}${mod!==0?` ${mod>0?'+':''} ${mod} = ${roll}`:''}
+      </div>
+      <div style="font-size:1.1rem;font-weight:600;margin-bottom:4px">${result.name}</div>
+      <div class="text-sm">${result.text}</div>
+    </div>
+  `;
+
+  addLog(`✦ ${p.name}: Aether anzapfen — W6=${rawRoll}${mod!==0?`(+${mod}=${roll})`:''} → ${result.name}. ${result.text}`, "action");
+  rememberAether(p, roll, result);
+  saveToStorage();
+  renderWorldView();
+  renderDashboard();
+}
+
+// ── CARDS VIEW ────────────────────────────────────────────────────────────────
+
+function renderCardsView() {
+  if (!G) return;
+  // Player select
+  const pSel = document.getElementById('cards-player-select');
+  if (pSel && pSel.innerHTML === '') {
+    pSel.innerHTML = G.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  }
+
+  const el = document.getElementById('cards-content');
+  if (!el) return;
+
+  const deckHtml = Object.entries(G.decks).map(([name, ids]) => `
+    <div class="deck-pile">
+      <h3>${name} <span class="deck-count">${ids.length}</span></h3>
+      <div class="text-xs text-muted" style="margin-bottom:6px">Abwurf: ${(G.discard_piles[name]||[]).length}</div>
+      <button class="btn btn-secondary btn-small" onclick="drawCard('${name}')">Karte ziehen</button>
+      <button class="btn btn-secondary btn-small" style="margin-top:4px" onclick="reshuffleDeck('${name}')">⟳ Neu mischen</button>
+    </div>
+  `).join('');
+
+  const selId = parseInt(pSel?.value) || 0;
+  const player = G.players.find(p => p.id === selId) || G.players[0];
+
+  const handHtml = player ? `
+    <div class="deck-pile" style="grid-column:span 2">
+      <h3>Hand: ${player.name} <span class="deck-count">${player.hand.length}</span></h3>
+      ${player.hand.length === 0 ? '<div class="text-xs text-muted">Keine Karten</div>' :
+        player.hand.map(cId => {
+          const c = getCardById(cId);
+          return c ? `<div class="card-item">
+            <div class="card-timing">${c.timing}</div>
+            <div class="card-name-display">${c.name}</div>
+            <div class="card-text">${c.text}</div>
+            <button class="btn btn-secondary btn-small" style="margin-top:4px" onclick="discardCard(${player.id},'${cId}')">Abwerfen</button>
+          </div>` : '';
+        }).join('')
+      }
+    </div>
+  ` : '';
+
+  el.innerHTML = deckHtml + handHtml;
+
+  // Objectives
+  renderObjectives();
+}
+
+function drawCard(deckName) {
+  if (!G) return;
+  const pSel = document.getElementById('cards-player-select');
+  const selId = parseInt(pSel?.value) || 0;
+  const player = G.players.find(p => p.id === selId) || G.players[0];
+  if (!player) return;
+
+  const deck = G.decks[deckName];
+  if (!deck || deck.length === 0) {
+    // Reshuffle discard
+    const discard = G.discard_piles[deckName] || [];
+    if (discard.length === 0) { alert(`${deckName} ist leer!`); return; }
+    G.decks[deckName] = shuffle([...discard]);
+    G.discard_piles[deckName] = [];
+    addLog(`${deckName} neu gemischt.`, "action");
+  }
+
+  const cardId = G.decks[deckName].shift();
+  player.hand.push(cardId);
+  const c = getCardById(cardId);
+  addLog(`${player.name} zieht: ${c?.name || cardId} (${deckName})`, "action");
+  saveToStorage();
+  renderCardsView();
+  renderPlayers();
+}
+
+function drawWorldReaction() {
+  if (!G) return;
+  const deck = G.decks["Weltreaktionsdeck"];
+  if (!deck || deck.length === 0) {
+    const discard = G.discard_piles["Weltreaktionsdeck"] || [];
+    if (discard.length === 0) { alert('Weltreaktionsdeck leer!'); return; }
+    G.decks["Weltreaktionsdeck"] = shuffle([...discard]);
+    G.discard_piles["Weltreaktionsdeck"] = [];
+  }
+  const cardId = G.decks["Weltreaktionsdeck"].shift();
+  G.discard_piles["Weltreaktionsdeck"].push(cardId);
+  const c = getCardById(cardId);
+  addLog(`Weltreaktion: "${c?.name}" — ${c?.text}`, "world");
+  alert(`WELTREAKTION:\n${c?.name}\n\n${c?.text}`);
+  saveToStorage();
+  renderCardsView();
+}
+
+function reshuffleDeck(deckName) {
+  if (!G) return;
+  const discard = G.discard_piles[deckName] || [];
+  if (discard.length === 0) { alert('Kein Abwurf zum Mischen.'); return; }
+  G.decks[deckName] = shuffle([...G.decks[deckName], ...discard]);
+  G.discard_piles[deckName] = [];
+  addLog(`${deckName}: Abwurf (${discard.length} Karten) neu gemischt.`, "action");
+  saveToStorage();
+  renderCardsView();
+}
+
+function assignSecretObjectives() {
+  if (!G) return;
+  const available = shuffle([...SECRET_OBJECTIVES.map(g => g.id)]);
+  G.players.forEach(p => {
+    p.secret_objectives = [available.shift()].filter(Boolean);
+  });
+  addLog(`Geheimziele zufällig zugewiesen.`, "action");
+  saveToStorage();
+  renderObjectives();
+  renderPlayers();
+}
+
+function renderObjectives() {
+  if (!G) return;
+  const el = document.getElementById('objectives-display');
+  if (!el) return;
+  el.innerHTML = G.players.map(p => {
+    const gzList = p.secret_objectives.map(id => {
+      const gz = SECRET_OBJECTIVES.find(g => g.id === id);
+      return gz ? `<div class="faction-info-row" style="border-left:2px solid var(--gold)">
+        <strong style="color:var(--gold)">${gz.name} (${gz.points} SP)</strong><br>
+        <span class="text-xs">${gz.text}</span>
+      </div>` : '';
+    }).join('');
+    return `<div style="margin-bottom:8px">
+      <div class="text-sm" style="color:var(--text);margin-bottom:4px">${p.name}</div>
+      ${gzList || '<div class="text-xs text-muted">Kein Ziel zugewiesen</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── LOG VIEW ──────────────────────────────────────────────────────────────────
+
+function renderLog() {
+  if (!G) return;
+  const el = document.getElementById('log-list');
+  if (!el) return;
+  el.innerHTML = G.log.slice(0, 200).map(entry => `
+    <div class="log-entry log-${entry.type}">
+      <span class="log-time">${entry.time}</span>${entry.text}
+    </div>
+  `).join('');
+}
+
+function addManualLog() {
+  const note = prompt('Notiz eingeben:');
+  if (note) addLog(`📝 ${note}`, "action");
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────────────────────────
+
+function exportGame() {
+  if (!G) { alert('Kein aktives Spiel.'); return; }
+  const json = JSON.stringify(G, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `aethoria_v096_weltgedaechtnis_runde${G.round}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importGame() {
+  document.getElementById('import-file').click();
+}
+
+function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.players || !data.round) { alert('Ungültiger Spielstand.'); return; }
+      G = data;
+      ensureWorldMemory();
+      addLog('Spielstand geladen.', 'action');
+      saveToStorage();
+      renderAll();
+      populateCombatSelects();
+      populateAetherSelect();
+      renderCardsView();
+      showView('dashboard');
+    } catch(err) {
+      alert('Fehler beim Laden: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function confirmNewGame() {
+  if (confirm('Neues Spiel starten? Aktueller Spielstand geht verloren!')) {
+    G = null;
+    try { localStorage.removeItem('aethoria_v096'); } catch(e) {}
+    showView('setup');
+  }
+}
+
+// ── GAME END ──────────────────────────────────────────────────────────────────
+
+function endGame() {
+  if (!G) return;
+  const sorted = [...G.players].sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const totalRes = p => Object.values(p.resources).reduce((s,v)=>s+v,0);
+    return totalRes(b) - totalRes(a);
+  });
+  const winner = sorted[0];
+
+  document.getElementById('game-end-winner').textContent = `${winner.name} (${winner.factionName}) gewinnt mit ${winner.score} SP!`;
+  document.getElementById('game-end-scores').innerHTML = sorted.map((p,i)=>`
+    <div class="score-list-item">
+      <span>${i+1}. ${p.name} · ${p.factionName}</span>
+      <span style="color:var(--gold2);font-family:'Cinzel',serif">${p.score} SP</span>
+    </div>
+  `).join('');
+  document.getElementById('game-end-tiebreaker').innerHTML =
+    `Tiebreaker: weniger Weltschaden · höhere Stabilisierung · mehr Gebiete · mehr Ressourcen`;
+
+  document.getElementById('game-end-overlay').classList.remove('hidden');
+  addLog(`🏆 SPIELENDE — Gewinner: ${winner.name} mit ${winner.score} SP`, "round");
+}
+
+function closeGameEnd() {
+  document.getElementById('game-end-overlay').classList.add('hidden');
+}
+
+
+
+// ── WORLD MEMORY / REGELGEBUNDENE WELT-KI ───────────────────────────────────
+
+const WORLD_REACTION_CATALOG = [
+  { id:'aether_sturm', name:'Aethersturm', kind:'threat', trigger:'Aetherkorruption hoch oder viele Aether-Aktionen', text:'Ein Aethersturm zieht über verwundete Regionen. Aetherkorruption +1 und Weltenzorn +1.', world:{Aetherkorruption:1, Weltenzorn:1}, metric:'corruption_score' },
+  { id:'riss_antwort', name:'Antwort des Risses', kind:'punish', trigger:'Fraktion mit hohem Korruptionswert', text:'Die Welt richtet ihre Antwort gegen die Fraktion, die den Aether am stärksten belastet. Ziel verliert 1 Aether, falls vorhanden; sonst Weltenzorn +1.', targetMetric:'corruption_score' },
+  { id:'grenzaufstand', name:'Grenzaufstand', kind:'punish', trigger:'Kriegsdruck hoch oder viele Angriffe', text:'Grenzlande verweigern Gehorsam. Kriegsdruck +1. Die kriegerischste Fraktion verliert 1 Gold oder 1 Nahrung.', world:{Kriegsdruck:1}, targetMetric:'war_score' },
+  { id:'kriegsfluechtlinge', name:'Kriegsflüchtlinge', kind:'threat', trigger:'Kriegsdruck sehr hoch', text:'Flüchtlingszüge blockieren Versorgung. Alle Fraktionen mit mehr als 0 Nahrung verlieren 1 Nahrung. Stabilität -1.', world:{Stabilität:-1}, allLose:{Nahrung:1} },
+  { id:'ernteausfall', name:'Ernteausfall', kind:'threat', trigger:'Naturgleichgewicht niedrig', text:'Die Felder tragen schlecht. Naturgleichgewicht -1. Jede Fraktion verliert 1 Nahrung, falls vorhanden.', world:{Naturgleichgewicht:-1}, allLose:{Nahrung:1} },
+  { id:'wald_erwacht', name:'Der Wald erwacht', kind:'threat', trigger:'Natur wurde geschädigt oder ignoriert', text:'Die Wildnis schlägt zurück. Die Fraktion mit dem höchsten Weltschaden verliert 1 Holz oder 1 Nahrung.', targetMetric:'world_damage' },
+  { id:'marktboom', name:'Marktboom', kind:'boon', trigger:'Wirtschaft stabil/hoch und Handelsaktivität', text:'Handelswege öffnen sich. Wirtschaft +1. Die handelsstärkste Fraktion erhält 1 Gold.', world:{Wirtschaft:1}, targetMetric:'trade_score', targetGain:{Gold:1} },
+  { id:'dank_der_siedler', name:'Dank der Siedler', kind:'boon', trigger:'Eine Fraktion stabilisiert die Welt', text:'Die Bevölkerung unterstützt ihre Beschützer. Die stabilisierendste Fraktion erhält 1 Nahrung oder 1 Holz.', targetMetric:'stability_score', targetGainChoice:['Nahrung','Holz'] },
+  { id:'heilender_regen', name:'Heilender Regen', kind:'boon', trigger:'Welt ist angespannt, aber Natur wurde geschützt', text:'Sanfter Regen beruhigt Risse und Wälder. Aetherkorruption -1 und Naturgleichgewicht +1.', world:{Aetherkorruption:-1, Naturgleichgewicht:1}, metric:'nature_score' },
+  { id:'zorn_der_welt', name:'Zorn der Welt', kind:'catastrophe', trigger:'Weltenzorn sehr hoch', text:'Die Welt schlägt blind zurück. Weltenzorn -2, aber jede Fraktion verliert 1 beliebige vorhandene Basisressource.', world:{Weltenzorn:-2}, allLoseAnyBasis:1 },
+  { id:'ruhe_vor_sturm', name:'Ruhe vor dem Sturm', kind:'omen', trigger:'Keine eindeutige Krise, aber Weltwerte kippen', text:'Keine Sofortwirkung. Lege eine offene Bedrohung „Schwelender Druck“ an.', threat:{name:'Schwelender Druck', severity:1, text:'Wenn in der nächsten Runde Krieg oder Korruption steigt, Weltenzorn +1.'} },
+  { id:'welt_atmet_auf', name:'Die Welt atmet auf', kind:'boon', trigger:'Stabilität und Naturgleichgewicht beide gesund', text:'Die Welt stabilisiert sich. Stabilität +1 und Weltenzorn -1.', world:{Stabilität:1, Weltenzorn:-1} }
+];
+
+function createInitialWorldMemory(players) {
+  const fm = {};
+  (players || []).forEach(p => {
+    fm[p.factionId] = {
+      factionId: p.factionId,
+      name: p.factionName,
+      war_score: 0,
+      corruption_score: 0,
+      stability_score: 0,
+      trade_score: 0,
+      nature_score: 0,
+      world_damage: 0,
+      world_help: 0,
+      expansion_score: 0,
+      last_actions: [],
+      reputation: 'neutral'
+    };
+  });
+  return {
+    version: '0.96',
+    mood: 'ruhig',
+    threat_level: 0,
+    round_summaries: [],
+    faction_memory: fm,
+    open_threats: [],
+    major_events: [],
+    pending_reactions: [],
+    applied_reactions: [],
+    last_finalized_round: 0
+  };
+}
+
+function ensureWorldMemory() {
+  if (!G) return;
+  if (!G.world_memory) G.world_memory = createInitialWorldMemory(G.players || []);
+  if (!G.world_memory.faction_memory) G.world_memory.faction_memory = {};
+  (G.players || []).forEach(p => {
+    if (!G.world_memory.faction_memory[p.factionId]) {
+      G.world_memory.faction_memory[p.factionId] = createInitialWorldMemory([p]).faction_memory[p.factionId];
+    }
+  });
+  G.world_memory.version = '0.96';
+  updateWorldMood();
+}
+
+function metricLabel(key) {
+  return ({
+    war_score:'Krieg', corruption_score:'Korruption', stability_score:'Stabilisierung',
+    trade_score:'Handel', nature_score:'Natur', world_damage:'Weltschaden',
+    world_help:'Welthilfe', expansion_score:'Ausbau'
+  })[key] || key;
+}
+
+function clampMetric(v) { return Math.max(0, Math.min(12, v || 0)); }
+
+function getFactionMemory(factionId) {
+  ensureWorldMemory();
+  return G.world_memory.faction_memory[factionId];
+}
+
+function bumpFactionMetric(factionId, metric, amount, reason) {
+  if (!G || !factionId) return;
+  const fm = getFactionMemory(factionId);
+  if (!fm) return;
+  fm[metric] = clampMetric((fm[metric] || 0) + amount);
+  if (metric === 'war_score' || metric === 'corruption_score' || metric === 'world_damage') fm.world_damage = clampMetric((fm.world_damage || 0) + Math.max(0, Math.ceil(amount / 2)));
+  if (metric === 'stability_score' || metric === 'trade_score' || metric === 'nature_score' || metric === 'world_help') fm.world_help = clampMetric((fm.world_help || 0) + Math.max(0, Math.ceil(amount / 2)));
+  if (reason) fm.last_actions.unshift(`R${G.round}: ${reason}`);
+  fm.last_actions = fm.last_actions.slice(0, 6);
+  fm.reputation = computeFactionReputation(fm);
+  updateWorldMood();
+}
+
+function computeFactionReputation(fm) {
+  const harmful = (fm.war_score || 0) + (fm.corruption_score || 0) + (fm.world_damage || 0);
+  const helpful = (fm.stability_score || 0) + (fm.trade_score || 0) + (fm.nature_score || 0) + (fm.world_help || 0);
+  if (harmful >= helpful + 5) return 'Bedrohung';
+  if (helpful >= harmful + 5) return 'Beschützer';
+  if ((fm.trade_score || 0) >= 5) return 'Vermittler';
+  if ((fm.corruption_score || 0) >= 5) return 'Rissrufer';
+  if ((fm.war_score || 0) >= 5) return 'Kriegstreiber';
+  return 'neutral';
+}
+
+function updateWorldMood() {
+  if (!G || !G.world_memory) return;
+  const w = G.world || WORLD_INITIAL;
+  let level = 0;
+  if (w.Weltenzorn >= 20) level += 3; else if (w.Weltenzorn >= 10) level += 1;
+  if (w.Aetherkorruption >= 25) level += 3; else if (w.Aetherkorruption >= 12) level += 1;
+  if (w.Kriegsdruck >= 10) level += 2; else if (w.Kriegsdruck >= 5) level += 1;
+  if (w.Stabilität <= 25) level += 3; else if (w.Stabilität <= 40) level += 1;
+  if (w.Naturgleichgewicht <= 25) level += 3; else if (w.Naturgleichgewicht <= 40) level += 1;
+  level += Math.min(3, (G.world_memory.open_threats || []).length);
+  G.world_memory.threat_level = level;
+  G.world_memory.mood = level >= 8 ? 'katastrophal' : level >= 5 ? 'feindselig' : level >= 3 ? 'angespannt' : level >= 1 ? 'unruhig' : 'ruhig';
+}
+
+function rememberAction(p, actionId, action, scoreGained) {
+  if (!G || !p) return;
+  ensureWorldMemory();
+  if (actionId === 'attack') bumpFactionMetric(p.factionId, 'war_score', 2, 'Angriff vorbereitet/ausgeführt');
+  if (actionId === 'tap_aether') bumpFactionMetric(p.factionId, 'corruption_score', 1, 'Aether angezapft');
+  if (actionId === 'overload_aether_wound') bumpFactionMetric(p.factionId, 'corruption_score', 3, 'Aetherwunde überladen');
+  if (actionId === 'cleanse_aether_wound') bumpFactionMetric(p.factionId, 'stability_score', 2, 'Aetherwunde gereinigt');
+  if (actionId === 'protect_nature') { bumpFactionMetric(p.factionId, 'nature_score', 2, 'Natur geschützt'); bumpFactionMetric(p.factionId, 'stability_score', 1, 'Welt stabilisiert'); }
+  if (actionId === 'trade_agreement') bumpFactionMetric(p.factionId, 'trade_score', 2, 'Handelsabkommen geschlossen');
+  if (['build_settlement','build_fortress','upgrade_city'].includes(actionId)) bumpFactionMetric(p.factionId, 'expansion_score', 1, action.name);
+  if (scoreGained > 0 && ['cleanse_aether_wound','protect_nature','trade_agreement'].includes(actionId)) bumpFactionMetric(p.factionId, 'world_help', 1, `Punkte über weltfreundliche Aktion: ${action.name}`);
+  renderMemoryView();
+}
+
+function rememberCombat(atk, def, atkWins, draw) {
+  if (!G || !atk) return;
+  bumpFactionMetric(atk.factionId, 'war_score', 2, `Kampf gegen ${def ? def.name : 'unbekannt'}`);
+  if (def) bumpFactionMetric(def.factionId, 'war_score', 1, `Verteidigung gegen ${atk.name}`);
+  if (atkWins) addMemoryTimeline(`${atk.name} erzwingt eine militärische Entscheidung gegen ${def.name}.`, 'combat');
+  else if (draw) addMemoryTimeline(`${def.name} hält die Linie gegen ${atk.name}.`, 'combat');
+  else addMemoryTimeline(`${def.name} schlägt den Angriff von ${atk.name} zurück.`, 'combat');
+}
+
+function rememberAether(p, roll, result) {
+  if (!G || !p) return;
+  const severity = roll <= 1 ? 3 : roll === 2 ? 2 : 1;
+  bumpFactionMetric(p.factionId, 'corruption_score', severity, `Aether-Risiko ${result.name}`);
+  if (roll <= 2) addOpenThreat(`Aether-Nachhall bei ${p.factionName}`, severity, `Der Risiko-Wurf ${roll} (${result.name}) hat die Welt belastet.`);
+}
+
+function addMemoryTimeline(text, type='memory') {
+  if (!G) return;
+  ensureWorldMemory();
+  G.world_memory.major_events.unshift({ round:G.round, type, text, world:{...G.world}, at:new Date().toISOString() });
+  G.world_memory.major_events = G.world_memory.major_events.slice(0, 80);
+}
+
+function addOpenThreat(name, severity=1, text='') {
+  if (!G) return;
+  ensureWorldMemory();
+  const existing = G.world_memory.open_threats.find(t => t.name === name);
+  if (existing) {
+    existing.severity = Math.min(5, (existing.severity || 1) + severity);
+    existing.text = text || existing.text;
+    existing.updated_round = G.round;
+  } else {
+    G.world_memory.open_threats.unshift({ id:'threat_' + Date.now() + '_' + Math.floor(Math.random()*999), name, severity:Math.min(5, severity), text, created_round:G.round, updated_round:G.round });
+  }
+  G.world_memory.open_threats = G.world_memory.open_threats.slice(0, 12);
+  updateWorldMood();
+}
+
+function resolveThreat(id) {
+  if (!G) return;
+  ensureWorldMemory();
+  const t = G.world_memory.open_threats.find(x => x.id === id);
+  G.world_memory.open_threats = G.world_memory.open_threats.filter(x => x.id !== id);
+  if (t) addMemoryTimeline(`Bedrohung gelöst: ${t.name}`, 'world');
+  saveToStorage();
+  renderMemoryView();
+}
+
+function summarizeRoundText(roundNo) {
+  const entries = (G.log || []).filter(e => (e.text || '').includes('→') || ['world','combat','warn'].includes(e.type)).slice(0, 12);
+  const topWar = topFactionByMetric('war_score');
+  const topCorr = topFactionByMetric('corruption_score');
+  const topHelp = topFactionByMetric('world_help');
+  const bits = [];
+  bits.push(`Weltlage: ${G.world_memory.mood}; Stabilität ${G.world.Stabilität}, Korruption ${G.world.Aetherkorruption}, Krieg ${G.world.Kriegsdruck}, Zorn ${G.world.Weltenzorn}.`);
+  if (topWar) bits.push(`Militärischer Druck: ${topWar.name}.`);
+  if (topCorr) bits.push(`Aetherbelastung: ${topCorr.name}.`);
+  if (topHelp) bits.push(`Stabilisierende Kraft: ${topHelp.name}.`);
+  if (entries.length) bits.push(`Log-Auszug: ${entries.map(e => e.text.replace(/<[^>]+>/g,'')).slice(0,5).join(' · ')}`);
+  return bits.join(' ');
+}
+
+function finalizeRoundMemory(force=false) {
+  if (!G) return;
+  ensureWorldMemory();
+  if (!force && G.world_memory.last_finalized_round === G.round) return;
+  const text = summarizeRoundText(G.round);
+  const summary = { round:G.round, mood:G.world_memory.mood, threat_level:G.world_memory.threat_level, text, world:{...G.world}, at:new Date().toISOString() };
+  const existingIdx = G.world_memory.round_summaries.findIndex(s => s.round === G.round);
+  if (existingIdx >= 0) G.world_memory.round_summaries[existingIdx] = summary;
+  else G.world_memory.round_summaries.unshift(summary);
+  G.world_memory.round_summaries = G.world_memory.round_summaries.slice(0, 20);
+  G.world_memory.last_finalized_round = G.round;
+  addMemoryTimeline(`Runde ${G.round} im Weltgedächtnis gespeichert: ${text}`, 'round');
+  addLog(`🜂 Weltgedächtnis: Runde ${G.round} gespeichert.`, 'world');
+  saveToStorage();
+  renderMemoryView();
+}
+
+function topFactionByMetric(metric) {
+  if (!G || !G.world_memory) return null;
+  const arr = Object.values(G.world_memory.faction_memory || {}).filter(fm => (fm[metric] || 0) > 0);
+  arr.sort((a,b) => (b[metric] || 0) - (a[metric] || 0));
+  return arr[0] || null;
+}
+
+function scoreReaction(rule) {
+  if (!G) return 0;
+  const w = G.world;
+  let score = 0;
+  if (rule.id === 'aether_sturm') score += w.Aetherkorruption >= 25 ? 8 : w.Aetherkorruption >= 12 ? 5 : 0;
+  if (rule.id === 'riss_antwort') score += (topFactionByMetric('corruption_score')?.corruption_score || 0) >= 3 ? 6 : 0;
+  if (rule.id === 'grenzaufstand') score += w.Kriegsdruck >= 10 ? 7 : w.Kriegsdruck >= 5 ? 4 : 0;
+  if (rule.id === 'kriegsfluechtlinge') score += w.Kriegsdruck >= 12 ? 8 : 0;
+  if (rule.id === 'ernteausfall') score += w.Naturgleichgewicht <= 25 ? 8 : w.Naturgleichgewicht <= 40 ? 4 : 0;
+  if (rule.id === 'wald_erwacht') score += (topFactionByMetric('world_damage')?.world_damage || 0) >= 4 ? 5 : 0;
+  if (rule.id === 'marktboom') score += (w.Wirtschaft >= 55 && (topFactionByMetric('trade_score')?.trade_score || 0) >= 2) ? 6 : 0;
+  if (rule.id === 'dank_der_siedler') score += (topFactionByMetric('stability_score')?.stability_score || 0) >= 3 ? 5 : 0;
+  if (rule.id === 'heilender_regen') score += (topFactionByMetric('nature_score')?.nature_score || 0) >= 3 ? 5 : 0;
+  if (rule.id === 'zorn_der_welt') score += w.Weltenzorn >= 30 ? 10 : w.Weltenzorn >= 20 ? 6 : 0;
+  if (rule.id === 'ruhe_vor_sturm') score += G.world_memory.threat_level >= 2 && G.world_memory.threat_level <= 5 ? 3 : 0;
+  if (rule.id === 'welt_atmet_auf') score += (w.Stabilität >= 55 && w.Naturgleichgewicht >= 55 && w.Weltenzorn <= 8) ? 5 : 0;
+  return score;
+}
+
+function generateWorldReactions() {
+  if (!G) return;
+  ensureWorldMemory();
+  finalizeRoundMemory(false);
+  let cands = WORLD_REACTION_CATALOG.map(r => ({...r, score: scoreReaction(r)})).filter(r => r.score > 0);
+  if (cands.length === 0) cands = [WORLD_REACTION_CATALOG.find(r => r.id === 'ruhe_vor_sturm')].map(r => ({...r, score:1}));
+  cands.sort((a,b) => b.score - a.score);
+  G.world_memory.pending_reactions = cands.slice(0, 3).map(r => enrichReaction(r));
+  addLog(`🜂 Weltreaktion vorbereitet: ${G.world_memory.pending_reactions.map(r=>r.name).join(', ')}`, 'world');
+  saveToStorage();
+  renderMemoryView();
+}
+
+function enrichReaction(rule) {
+  const enriched = {...rule};
+  if (rule.targetMetric) enriched.target = topFactionByMetric(rule.targetMetric);
+  return enriched;
+}
+
+function applyWorldReaction(idx) {
+  if (!G) return;
+  ensureWorldMemory();
+  const r = G.world_memory.pending_reactions[idx];
+  if (!r) return;
+  if (!confirm(`Weltreaktion anwenden?\n\n${r.name}\n${r.text}`)) return;
+
+  if (r.world) applyWorldDelta(r.world, `Weltreaktion · ${r.name}`);
+  if (r.threat) addOpenThreat(r.threat.name, r.threat.severity, r.threat.text);
+  if (r.allLose) {
+    G.players.forEach(p => {
+      for (const [res, amount] of Object.entries(r.allLose)) {
+        const loss = Math.min(amount, p.resources[res] || 0);
+        if (loss > 0) { p.resources[res] -= loss; addLog(`${p.name} verliert ${loss} ${res} durch ${r.name}.`, 'world'); }
+      }
+    });
+  }
+  if (r.allLoseAnyBasis) {
+    G.players.forEach(p => loseAnyBasis(p, r.allLoseAnyBasis, r.name));
+  }
+  if (r.target && r.target.factionId) {
+    const p = G.players.find(pl => pl.factionId === r.target.factionId);
+    if (p) {
+      if (r.targetGain) {
+        for (const [res, amount] of Object.entries(r.targetGain)) {
+          p.resources[res] = (p.resources[res] || 0) + amount;
+          addLog(`${p.name} erhält ${amount} ${res} durch ${r.name}.`, 'world');
+        }
+      } else if (r.targetGainChoice) {
+        const choice = chooseHelpfulResource(p, r.targetGainChoice);
+        p.resources[choice] = (p.resources[choice] || 0) + 1;
+        addLog(`${p.name} erhält 1 ${choice} durch ${r.name}.`, 'world');
+      } else {
+        if (!loseAnyBasis(p, 1, r.name, ['Gold','Nahrung','Holz','Stein','Aether'])) {
+          applyWorldDelta({Weltenzorn:1}, `Weltreaktion · ${r.name} konnte keine Ressource entziehen`);
+        }
+      }
+    }
+  }
+
+  G.world_memory.applied_reactions.unshift({ round:G.round, name:r.name, text:r.text, target:r.target ? r.target.name : null, at:new Date().toISOString() });
+  G.world_memory.applied_reactions = G.world_memory.applied_reactions.slice(0, 30);
+  addMemoryTimeline(`Weltreaktion angewendet: ${r.name}${r.target ? ' gegen/bei ' + r.target.name : ''}.`, 'world');
+  G.world_memory.pending_reactions = [];
+  saveToStorage();
+  renderAll();
+  renderCardsView();
+}
+
+function chooseHelpfulResource(p, list) {
+  for (const r of list) if ((p.resources[r] || 0) === 0) return r;
+  return list[0];
+}
+
+function loseAnyBasis(p, amount, source, preferred=['Nahrung','Gold','Holz','Stein']) {
+  let remaining = amount;
+  for (const res of preferred) {
+    if (remaining <= 0) break;
+    const loss = Math.min(remaining, p.resources[res] || 0);
+    if (loss > 0) {
+      p.resources[res] -= loss;
+      remaining -= loss;
+      addLog(`${p.name} verliert ${loss} ${res} durch ${source}.`, 'world');
+    }
+  }
+  return remaining < amount;
+}
+
+function addManualMemoryEntry() {
+  if (!G) return;
+  const text = prompt('Was soll sich die Welt merken?');
+  if (!text) return;
+  addMemoryTimeline(text, 'manual');
+  addLog(`🜂 Manuelle Welterinnerung: ${text}`, 'world');
+  saveToStorage();
+  renderMemoryView();
+}
+
+function generateWorldAIPrompt() {
+  if (!G) return;
+  ensureWorldMemory();
+  if (!G.world_memory.pending_reactions || G.world_memory.pending_reactions.length === 0) generateWorldReactions();
+  const snapshot = {
+    game:'AETHORIA',
+    version:'0.96',
+    round:G.round,
+    world:G.world,
+    mood:G.world_memory.mood,
+    open_threats:G.world_memory.open_threats,
+    faction_memory:G.world_memory.faction_memory,
+    recent_rounds:G.world_memory.round_summaries.slice(0,4),
+    allowed_reactions:G.world_memory.pending_reactions.map((r,i)=>({option:i+1,id:r.id,name:r.name,text:r.text,target:r.target? r.target.name : null, world:r.world||null}))
+  };
+  const prompt = `Du bist die Weltstimme von AETHORIA. Du darfst KEINE neuen Regeln, Kosten, Siegpunkte oder Strafen erfinden. Wähle genau eine der erlaubten Weltreaktionen oder empfehle keine Anwendung, wenn sie unfair wäre. Antworte kurz auf Deutsch mit: 1) gewählte Option-ID, 2) erzählerische Begründung, 3) Hinweis auf den regelgebundenen Effekt.\n\nSPIELZUSTAND:\n${JSON.stringify(snapshot, null, 2)}`;
+  const box = document.getElementById('world-ai-prompt');
+  if (box) box.value = prompt;
+  return prompt;
+}
+
+function copyWorldPrompt() {
+  const box = document.getElementById('world-ai-prompt');
+  if (!box || !box.value) generateWorldAIPrompt();
+  const text = document.getElementById('world-ai-prompt').value;
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(()=>alert('Prompt kopiert.')).catch(()=>alert('Kopieren fehlgeschlagen. Bitte manuell markieren.'));
+  else alert('Bitte Prompt manuell kopieren.');
+}
+
+function renderMemoryView() {
+  if (!G) return;
+  ensureWorldMemory();
+  const mem = G.world_memory;
+  const summary = document.getElementById('memory-world-summary');
+  if (summary) {
+    summary.innerHTML = `
+      <div class="memory-card">
+        <strong>Weltstimmung: ${escapeHtml(mem.mood)}</strong>
+        <div class="metric-row"><span>Bedrohung</span><div class="metric-bar"><div class="metric-fill" style="width:${Math.min(100, mem.threat_level*10)}%"></div></div><span>${mem.threat_level}</span></div>
+        <div class="text-xs text-muted mt-8">Runden im Gedächtnis: ${mem.round_summaries.length} · offene Bedrohungen: ${mem.open_threats.length} · angewandte Reaktionen: ${mem.applied_reactions.length}</div>
+      </div>
+    `;
+  }
+
+  const threats = document.getElementById('memory-threats');
+  if (threats) {
+    threats.innerHTML = mem.open_threats.length ? mem.open_threats.map(t => `
+      <div class="faction-info-row" style="border-left:2px solid var(--warn)">
+        <div class="flex-row" style="justify-content:space-between">
+          <strong style="color:var(--warn)">${escapeHtml(t.name)} · Stufe ${t.severity}</strong>
+          <button class="btn btn-secondary btn-small" onclick="resolveThreat('${t.id}')">lösen</button>
+        </div>
+        <div class="text-xs">${escapeHtml(t.text || '')}</div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">Keine offenen Bedrohungen.</div>';
+  }
+
+  const factions = document.getElementById('memory-factions');
+  if (factions) {
+    factions.innerHTML = Object.values(mem.faction_memory).map(fm => {
+      const faction = getFaction(fm.factionId) || {color:'var(--gold)'};
+      const metrics = ['war_score','corruption_score','stability_score','trade_score','nature_score','world_damage','world_help'];
+      return `<div class="memory-card" style="border-left:3px solid ${faction.color}">
+        <strong style="color:${faction.color}">${escapeHtml(fm.name)} · ${escapeHtml(fm.reputation)}</strong>
+        ${metrics.map(m => `<div class="metric-row"><span>${metricLabel(m)}</span><div class="metric-bar"><div class="metric-fill" style="width:${Math.min(100,(fm[m]||0)*8)}%"></div></div><span>${fm[m]||0}</span></div>`).join('')}
+        <div class="text-xs text-muted mt-8">${(fm.last_actions||[]).slice(0,2).map(escapeHtml).join('<br>') || 'Noch keine prägenden Erinnerungen.'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const reactions = document.getElementById('memory-reactions');
+  if (reactions) {
+    const pending = mem.pending_reactions || [];
+    reactions.innerHTML = pending.length ? pending.map((r, idx) => `
+      <div class="reaction-card">
+        <div class="reaction-title">${idx+1}. ${escapeHtml(r.name)} <span class="badge">Score ${r.score}</span></div>
+        <div class="text-xs text-muted">Auslöser: ${escapeHtml(r.trigger || '')}${r.target ? ' · Ziel: ' + escapeHtml(r.target.name) : ''}</div>
+        <div class="text-sm mt-8">${escapeHtml(r.text)}</div>
+        <div class="text-xs text-aether mt-8">Effekt: ${formatReactionEffect(r)}</div>
+        <div class="mt-8"><button class="btn btn-primary btn-small" onclick="applyWorldReaction(${idx})">Diese Reaktion anwenden</button></div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">Noch keine Reaktionen vorgeschlagen. Klicke auf „Welt reagieren lassen“.</div>';
+  }
+
+  const timeline = document.getElementById('memory-timeline');
+  if (timeline) {
+    const events = [...(mem.major_events || [])].slice(0, 40);
+    timeline.innerHTML = events.length ? events.map(e => `
+      <div class="timeline-entry">
+        <div class="text-xs text-muted">Runde ${e.round} · ${escapeHtml(e.type)}</div>
+        <div>${escapeHtml(e.text)}</div>
+      </div>
+    `).join('') : '<div class="text-sm text-muted">Noch keine Welterinnerungen.</div>';
+  }
+}
+
+function formatReactionEffect(r) {
+  const parts = [];
+  if (r.world) parts.push(Object.entries(r.world).map(([k,v]) => `${k} ${v>0?'+':''}${v}`).join(', '));
+  if (r.allLose) parts.push('alle verlieren: ' + Object.entries(r.allLose).map(([k,v])=>`${v} ${k}`).join(', '));
+  if (r.allLoseAnyBasis) parts.push(`alle verlieren ${r.allLoseAnyBasis} Basisressource`);
+  if (r.targetGain) parts.push('Ziel erhält: ' + Object.entries(r.targetGain).map(([k,v])=>`${v} ${k}`).join(', '));
+  if (r.targetGainChoice) parts.push('Ziel erhält 1 aus: ' + r.targetGainChoice.join('/'));
+  if (r.threat) parts.push(`Bedrohung: ${r.threat.name}`);
+  if (!parts.length && r.target) parts.push('Ziel verliert 1 passende Ressource, falls möglich');
+  return parts.join(' · ') || 'keine Sofortwirkung';
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+function init() {
+  updateSetupCards();
+
+  // Try to restore from storage
+  loadFromStorage();
+  if (G && G.started) {
+    ensureWorldMemory();
+    renderAll();
+    populateCombatSelects();
+    populateAetherSelect();
+    const pSel = document.getElementById('cards-player-select');
+    if (pSel) {
+      pSel.innerHTML = G.players.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+    // Switch to dashboard if game exists
+    showView('dashboard');
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-tab')[1].classList.add('active');
+  }
+}
+
+init();
+
+
+// ── BACKEND / OLLAMA BRIDGE ───────────────────────────────────────────────────
+const AETHORIA_API_BASE = (() => {
+  const fromWindow = window.AETHORIA_API_BASE;
+  if (fromWindow) return fromWindow.replace(/\/$/, '');
+  return window.location.origin + '/api';
+})();
+
+function backendResult(text) {
+  const box = document.getElementById('backend-ollama-result');
+  if (box) box.value = typeof text === 'string' ? text : JSON.stringify(text, null, 2);
+}
+
+async function backendFetch(path, options = {}) {
+  const res = await fetch(AETHORIA_API_BASE + path, {
+    headers: {'Content-Type': 'application/json', ...(options.headers || {})},
+    ...options
+  });
+  const data = await res.json().catch(() => ({raw: 'Keine JSON-Antwort'}));
+  if (!res.ok) throw new Error(data.detail || data.error || JSON.stringify(data));
+  return data;
+}
+
+async function backendHealthCheck() {
+  try {
+    const data = await backendFetch('/health');
+    backendResult(data);
+  } catch (err) {
+    backendResult('Backend nicht erreichbar: ' + err.message);
+  }
+}
+
+async function backendSyncGame() {
+  if (!G) { backendResult('Kein Spiel gestartet.'); return; }
+  try {
+    ensureWorldMemory();
+    if (!G.game_id) G.game_id = 'game_' + Date.now();
+    const data = await backendFetch('/games/' + encodeURIComponent(G.game_id), {
+      method: 'PUT',
+      body: JSON.stringify({state: G})
+    });
+    backendResult(data);
+    addLog('Server: Spielstand gespeichert.', 'world');
+    saveToStorage();
+    return data;
+  } catch (err) {
+    backendResult('Server-Speicherung fehlgeschlagen: ' + err.message);
+    throw err;
+  }
+}
+
+async function backendListGames() {
+  try {
+    const data = await backendFetch('/games');
+    backendResult(data);
+    return data.games || [];
+  } catch (err) {
+    backendResult('Server-Spielstände konnten nicht geladen werden: ' + err.message);
+    return [];
+  }
+}
+
+async function backendLoadGameDialog() {
+  try {
+    const games = await backendListGames();
+    if (!games.length) {
+      alert('Keine Spielstände auf dem Server gefunden. Speichere zuerst ein Spiel mit „Server speichern“.');
+      return;
+    }
+    const list = games.map((g, i) => `${i + 1}. ${g.game_id} · Runde ${g.round ?? '?'} · Spieler ${g.players ?? '?'} · ${g.updated_at ?? ''}`).join('\n');
+    const input = prompt('Welchen Server-Spielstand laden?\n\n' + list + '\n\nNummer oder game_id eingeben:', '1');
+    if (!input) return;
+    let gameId = input.trim();
+    const n = parseInt(gameId, 10);
+    if (!Number.isNaN(n) && games[n - 1]) gameId = games[n - 1].game_id;
+    await backendLoadGameById(gameId);
+  } catch (err) {
+    alert('Server-Laden fehlgeschlagen: ' + err.message);
+  }
+}
+
+async function backendLoadGameById(gameId) {
+  const data = await backendFetch('/games/' + encodeURIComponent(gameId));
+  if (!data.state) throw new Error('Server-Antwort enthält keinen Spielstand.');
+  G = data.state;
+  if (!G.game_id) G.game_id = gameId;
+  ensureWorldMemory();
+  addLog('Server: Spielstand geladen.', 'action');
+  saveToStorage();
+  renderAll();
+  populateCombatSelects();
+  populateAetherSelect();
+  renderCardsView();
+  showView('dashboard');
+  backendResult(data);
+}
+
+async function backendAskOllamaWorldVoice() {
+  if (!G) { backendResult('Kein Spiel gestartet.'); return; }
+  try {
+    ensureWorldMemory();
+    if (!G.world_memory.pending_reactions || G.world_memory.pending_reactions.length === 0) generateWorldReactions();
+    const prompt = generateWorldAIPrompt();
+    const data = await backendFetch('/ollama/world-voice', {
+      method: 'POST',
+      body: JSON.stringify({game_state: G, prompt})
+    });
+    const output = {
+      model: data.model,
+      ollama_available: data.ollama_available,
+      deterministic_reactions: data.deterministic_reactions,
+      world_voice: data.world_voice,
+      warning: data.warning || null
+    };
+    backendResult(output);
+    addLog('Ollama/Weltstimme angefragt. Wirkung nur nach Spielerbestätigung anwenden.', 'world');
+  } catch (err) {
+    backendResult('Ollama-Anfrage fehlgeschlagen: ' + err.message);
+  }
+}
+
+</script>
+</body>
+</html>

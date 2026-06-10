@@ -1,0 +1,28 @@
+{
+  "version": "v0.96",
+  "round": 1,
+  "phase": "setup",
+  "current_player_index": 0,
+  "players": [],
+  "world": {
+    "Stabilität": 100,
+    "Aetherkorruption": 0,
+    "Kriegsdruck": 0,
+    "Wirtschaft": 50,
+    "Naturgleichgewicht": 50,
+    "Weltenzorn": 0
+  },
+  "decks": {},
+  "discard_piles": {},
+  "agreements": [],
+  "board": {
+    "hexes": [],
+    "aether_sites": []
+  },
+  "round_flags": {
+    "city_destroyed_this_round": false,
+    "aether_wound_overloaded_this_round": false,
+    "nature_wrath_reduction_this_round": 0
+  },
+  "log": []
+}

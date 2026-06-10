@@ -1,0 +1,903 @@
+{
+  "version": "v0.96",
+  "canon_note": "Diese Datei ist kanonisch. Keine Kartentexte aus älteren UI-Strings übernehmen.",
+  "secret_objectives": [
+    {
+      "id": "GZ01",
+      "name": "Stille Expansion",
+      "points": 3,
+      "text": "Kontrolliere am Spielende mindestens 5 eigene Siedlungen oder Städte.",
+      "tags": [
+        "Aufbau"
+      ]
+    },
+    {
+      "id": "GZ02",
+      "name": "Aetherhüter",
+      "points": 3,
+      "text": "Reinige im Spiel mindestens 2 Aetherwunden oder kontrolliere am Ende 2 Schleierquellen.",
+      "tags": [
+        "Aether",
+        "Welt"
+      ]
+    },
+    {
+      "id": "GZ03",
+      "name": "Grenzfestung",
+      "points": 3,
+      "text": "Besitze am Spielende mindestens 2 Festungen auf unterschiedlichen Geländetypen.",
+      "tags": [
+        "Bau",
+        "Verteidigung"
+      ]
+    },
+    {
+      "id": "GZ04",
+      "name": "Handelsnetz",
+      "points": 3,
+      "text": "Schließe im Spiel mindestens 3 Handelsabkommen mit mindestens 2 verschiedenen Fraktionen.",
+      "tags": [
+        "Handel"
+      ]
+    },
+    {
+      "id": "GZ05",
+      "name": "Herr der Mitte",
+      "points": 4,
+      "text": "Kontrolliere am Spielende mindestens 3 Hexfelder des Zentralgebiets.",
+      "tags": [
+        "Kontrolle"
+      ]
+    },
+    {
+      "id": "GZ06",
+      "name": "Kein unnötiger Krieg",
+      "points": 3,
+      "text": "Erreiche am Spielende mindestens 10 Siegpunkte und habe höchstens 2 Angriffe ausgeführt.",
+      "tags": [
+        "Frieden",
+        "Aufbau"
+      ]
+    },
+    {
+      "id": "GZ07",
+      "name": "Rissmeister",
+      "points": 4,
+      "text": "Baue oder überlade im Spiel insgesamt 2 Aetherwunden.",
+      "tags": [
+        "Aether",
+        "Risiko"
+      ]
+    },
+    {
+      "id": "GZ08",
+      "name": "Naturvertrag",
+      "points": 3,
+      "text": "Führe im Spiel mindestens 3 Aktionen Natur schützen aus.",
+      "tags": [
+        "Natur",
+        "Welt"
+      ]
+    },
+    {
+      "id": "GZ09",
+      "name": "Städtebund",
+      "points": 4,
+      "text": "Besitze am Spielende mindestens 3 Städte.",
+      "tags": [
+        "Aufbau"
+      ]
+    },
+    {
+      "id": "GZ10",
+      "name": "Rohstoffmacht",
+      "points": 3,
+      "text": "Besitze am Ende einer Runde mindestens 8 Ressourcen gleichzeitig.",
+      "tags": [
+        "Wirtschaft"
+      ]
+    },
+    {
+      "id": "GZ11",
+      "name": "Grenzbrecher",
+      "points": 3,
+      "text": "Erobere im Spiel mindestens 2 gegnerische oder neutrale Schlüsselorte.",
+      "tags": [
+        "Konflikt",
+        "Kontrolle"
+      ]
+    },
+    {
+      "id": "GZ12",
+      "name": "Weltstifter",
+      "points": 4,
+      "text": "Erhalte im Spiel insgesamt mindestens 5 Stabilität durch eigene Aktionen oder Boni.",
+      "tags": [
+        "Welt",
+        "Stabilität"
+      ]
+    },
+    {
+      "id": "GZ13",
+      "name": "Aethernetz",
+      "points": 3,
+      "text": "Kontrolliere am Spielende mindestens 2 Aetherorte beliebiger Art.",
+      "tags": [
+        "Aether",
+        "Kontrolle"
+      ]
+    },
+    {
+      "id": "GZ14",
+      "name": "Keine leeren Hände",
+      "points": 2,
+      "text": "Beende das Spiel mit mindestens 1 Nahrung, 1 Holz, 1 Stein und 1 Gold.",
+      "tags": [
+        "Ressourcen"
+      ]
+    },
+    {
+      "id": "GZ15",
+      "name": "Runder Taktiker",
+      "points": 3,
+      "text": "Nutze in mindestens 4 verschiedenen Runden alle 3 AP vollständig.",
+      "tags": [
+        "Planung"
+      ]
+    },
+    {
+      "id": "GZ16",
+      "name": "Abseits der Heimat",
+      "points": 3,
+      "text": "Kontrolliere am Spielende mindestens 3 Hexfelder, die nicht an deine Heimatplatte angrenzen.",
+      "tags": [
+        "Expansion"
+      ]
+    },
+    {
+      "id": "GZ17",
+      "name": "Letzte Bastion",
+      "points": 4,
+      "text": "Besitze am Spielende eine Festung und eine Stadt auf benachbarten Hexfeldern.",
+      "tags": [
+        "Bau",
+        "Verteidigung"
+      ]
+    },
+    {
+      "id": "GZ18",
+      "name": "Balance der Welt",
+      "points": 4,
+      "text": "Am Spielende liegen Stabilität und Naturgleichgewicht beide bei mindestens 50.",
+      "tags": [
+        "Welt",
+        "Natur"
+      ]
+    }
+  ],
+  "decks": {
+    "Fraktionsdeck": [
+      {
+        "id": "FR01",
+        "deck": "Fraktionsdeck",
+        "name": "Eiserne Reserve",
+        "timing": "Sofort",
+        "text": "Erhalte 1 Stein. Eisengilde erhält stattdessen 2 Stein.",
+        "effect": {
+          "resource_delta": {
+            "Stein": 1
+          },
+          "faction_override": {
+            "eisengilde": {
+              "Stein": 2
+            }
+          }
+        },
+        "tags": [
+          "Ressource"
+        ]
+      },
+      {
+        "id": "FR02",
+        "deck": "Fraktionsdeck",
+        "name": "Küstenhändler",
+        "timing": "Aktion",
+        "text": "Tausche 1 Ressource gegen 1 Basisressource. Tidenrat darf zusätzlich 1 Gold nehmen.",
+        "effect": {},
+        "tags": [
+          "Handel"
+        ]
+      },
+      {
+        "id": "FR03",
+        "deck": "Fraktionsdeck",
+        "name": "Schleierzeichen",
+        "timing": "Sofort",
+        "text": "Sieh die oberste Weltreaktionskarte an. Nebelwacht darf sie unter das Deck legen.",
+        "effect": {},
+        "tags": [
+          "Aether",
+          "Kontrolle"
+        ]
+      },
+      {
+        "id": "FR04",
+        "deck": "Fraktionsdeck",
+        "name": "Sonnensegen",
+        "timing": "Sofort",
+        "text": "Erhalte Stabilität +1. Sonnenbund erhält zusätzlich 1 Nahrung.",
+        "effect": {
+          "world_delta": {
+            "Stabilität": 1
+          }
+        },
+        "tags": [
+          "Welt"
+        ]
+      },
+      {
+        "id": "FR05",
+        "deck": "Fraktionsdeck",
+        "name": "Waldpfad",
+        "timing": "Aktion",
+        "text": "Bewege 1 Einheit um 1 Hexfeld. Wildklinge darf diese Bewegung durch Wald um 2 Hexfelder erhöhen.",
+        "effect": {},
+        "tags": [
+          "Bewegung"
+        ]
+      },
+      {
+        "id": "FR06",
+        "deck": "Fraktionsdeck",
+        "name": "Aschemal",
+        "timing": "Aktion",
+        "text": "Lege 1 Fluchmarker auf ein benachbartes Feld. Grauasche zahlt dafür 0 AP, erhöht aber Weltenzorn um 1.",
+        "effect": {
+          "world_delta": {
+            "Weltenzorn": 1
+          }
+        },
+        "tags": [
+          "Fluch"
+        ]
+      },
+      {
+        "id": "FR07",
+        "deck": "Fraktionsdeck",
+        "name": "Baukolonne",
+        "timing": "Sofort",
+        "text": "Der nächste Bau in dieser Runde kostet 1 beliebige Basisressource weniger.",
+        "effect": {},
+        "tags": [
+          "Bau"
+        ]
+      },
+      {
+        "id": "FR08",
+        "deck": "Fraktionsdeck",
+        "name": "Lokale Miliz",
+        "timing": "Sofort",
+        "text": "Rekrutiere 1 Einheit für 1 Nahrung statt 1 Nahrung und 1 Gold.",
+        "effect": {},
+        "tags": [
+          "Einheit"
+        ]
+      },
+      {
+        "id": "FR09",
+        "deck": "Fraktionsdeck",
+        "name": "Grenzvertrag",
+        "timing": "Aktion",
+        "text": "Schließe ein Handelsabkommen. Wenn Kriegsdruck < 5, erhältst du zusätzlich +1 SP.",
+        "effect": {},
+        "tags": [
+          "Handel"
+        ]
+      },
+      {
+        "id": "FR10",
+        "deck": "Fraktionsdeck",
+        "name": "Verborgene Pfade",
+        "timing": "Reaktion",
+        "text": "Nach einem Kampf darf eine überlebende Einheit 1 Hexfeld zurückweichen.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "FR11",
+        "deck": "Fraktionsdeck",
+        "name": "Runenstein",
+        "timing": "Sofort",
+        "text": "Erhalte 1 Aether oder reduziere Aetherkorruption um 1.",
+        "effect": {},
+        "tags": [
+          "Aether"
+        ]
+      },
+      {
+        "id": "FR12",
+        "deck": "Fraktionsdeck",
+        "name": "Bollwerk",
+        "timing": "Reaktion",
+        "text": "Eine eigene Siedlung oder Festung erhält in diesem Kampf +1 Verteidigung.",
+        "effect": {},
+        "tags": [
+          "Kampf",
+          "Verteidigung"
+        ]
+      },
+      {
+        "id": "FR13",
+        "deck": "Fraktionsdeck",
+        "name": "Volksrat",
+        "timing": "Sofort",
+        "text": "Erhalte 1 Nahrung und 1 Holz, wenn du höchstens 2 Siedlungen besitzt.",
+        "effect": {},
+        "tags": [
+          "Ressource"
+        ]
+      },
+      {
+        "id": "FR14",
+        "deck": "Fraktionsdeck",
+        "name": "Schwarzer Markt",
+        "timing": "Aktion",
+        "text": "Erhalte 1 Gold. Wirtschaft +1 und Weltenzorn +1.",
+        "effect": {
+          "resource_delta": {
+            "Gold": 1
+          },
+          "world_delta": {
+            "Wirtschaft": 1,
+            "Weltenzorn": 1
+          }
+        },
+        "tags": [
+          "Handel",
+          "Risiko"
+        ]
+      },
+      {
+        "id": "FR15",
+        "deck": "Fraktionsdeck",
+        "name": "Eid der Heimat",
+        "timing": "Sofort",
+        "text": "Wähle ein eigenes Heimatfeld. Es produziert in dieser Runde +1 passende Ressource.",
+        "effect": {},
+        "tags": [
+          "Heimat"
+        ]
+      }
+    ],
+    "Forschungsdeck": [
+      {
+        "id": "FO01",
+        "deck": "Forschungsdeck",
+        "name": "Effiziente Speicher",
+        "timing": "Dauerhaft",
+        "text": "Dein Ressourcenlimit steigt um 3.",
+        "effect": {},
+        "tags": [
+          "Wirtschaft"
+        ]
+      },
+      {
+        "id": "FO02",
+        "deck": "Forschungsdeck",
+        "name": "Bessere Werkzeuge",
+        "timing": "Dauerhaft",
+        "text": "Einmal pro Runde kostet ein Bau 1 Holz oder 1 Stein weniger.",
+        "effect": {},
+        "tags": [
+          "Bau"
+        ]
+      },
+      {
+        "id": "FO03",
+        "deck": "Forschungsdeck",
+        "name": "Aetherlinsen",
+        "timing": "Dauerhaft",
+        "text": "Bei Aether anzapfen darfst du 1× pro Runde den Risiko-Wurf um ±1 verändern.",
+        "effect": {},
+        "tags": [
+          "Aether"
+        ]
+      },
+      {
+        "id": "FO04",
+        "deck": "Forschungsdeck",
+        "name": "Steinarchitektur",
+        "timing": "Dauerhaft",
+        "text": "Deine Festungen erhalten +1 Verteidigung.",
+        "effect": {},
+        "tags": [
+          "Verteidigung"
+        ]
+      },
+      {
+        "id": "FO05",
+        "deck": "Forschungsdeck",
+        "name": "Ernteplanung",
+        "timing": "Dauerhaft",
+        "text": "Deine erste Nahrung-Produktion pro Runde gibt +1 Nahrung.",
+        "effect": {},
+        "tags": [
+          "Produktion"
+        ]
+      },
+      {
+        "id": "FO06",
+        "deck": "Forschungsdeck",
+        "name": "Handelsregister",
+        "timing": "Dauerhaft",
+        "text": "Dein erstes Handelsabkommen im Spiel gibt +1 zusätzlichen SP, wenn Kriegsdruck < 5.",
+        "effect": {},
+        "tags": [
+          "Handel"
+        ]
+      },
+      {
+        "id": "FO07",
+        "deck": "Forschungsdeck",
+        "name": "Heilkunde",
+        "timing": "Sofort",
+        "text": "Reduziere Aetherkorruption um 2 oder erhöhe Stabilität um 2.",
+        "effect": {},
+        "tags": [
+          "Welt"
+        ]
+      },
+      {
+        "id": "FO08",
+        "deck": "Forschungsdeck",
+        "name": "Kartografie",
+        "timing": "Dauerhaft",
+        "text": "Einmal pro Runde darf eine deiner Bewegungen 1 zusätzliches Hexfeld weit gehen.",
+        "effect": {},
+        "tags": [
+          "Bewegung"
+        ]
+      },
+      {
+        "id": "FO09",
+        "deck": "Forschungsdeck",
+        "name": "Wachtürme",
+        "timing": "Dauerhaft",
+        "text": "Bei Angriff auf deine Siedlung erhältst du +1 Verteidigung, wenn eine eigene Einheit angrenzend steht.",
+        "effect": {},
+        "tags": [
+          "Verteidigung"
+        ]
+      },
+      {
+        "id": "FO10",
+        "deck": "Forschungsdeck",
+        "name": "Aetherdämpfer",
+        "timing": "Dauerhaft",
+        "text": "Beim Überladen einer Aetherwunde entsteht 1 Weltenzorn weniger.",
+        "effect": {},
+        "tags": [
+          "Aether",
+          "Welt"
+        ]
+      },
+      {
+        "id": "FO11",
+        "deck": "Forschungsdeck",
+        "name": "Verwaltung",
+        "timing": "Dauerhaft",
+        "text": "Die erste Stadt-Aufwertung im Spiel kostet 1 Gold weniger.",
+        "effect": {},
+        "tags": [
+          "Bau"
+        ]
+      },
+      {
+        "id": "FO12",
+        "deck": "Forschungsdeck",
+        "name": "Schiffsrouten",
+        "timing": "Dauerhaft",
+        "text": "Dein erstes Küstenfeld pro Produktion darf zusätzlich 1 Gold produzieren.",
+        "effect": {},
+        "tags": [
+          "Küste"
+        ]
+      },
+      {
+        "id": "FO13",
+        "deck": "Forschungsdeck",
+        "name": "Forstwirtschaft",
+        "timing": "Dauerhaft",
+        "text": "Deine erste Waldproduktion pro Runde gibt +1 Holz, wenn Naturgleichgewicht ≥ 50.",
+        "effect": {},
+        "tags": [
+          "Wald"
+        ]
+      },
+      {
+        "id": "FO14",
+        "deck": "Forschungsdeck",
+        "name": "Krisenrat",
+        "timing": "Reaktion",
+        "text": "Wenn eine Katastrophe ausgelöst wird, reduziere einen Verlust deiner Fraktion um 1.",
+        "effect": {},
+        "tags": [
+          "Katastrophe"
+        ]
+      },
+      {
+        "id": "FO15",
+        "deck": "Forschungsdeck",
+        "name": "Kampfdisziplin",
+        "timing": "Dauerhaft",
+        "text": "Einmal pro Runde darfst du nach einem Kampfwurf +1 addieren, bevor das Ergebnis verglichen wird.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      }
+    ],
+    "Weltreaktionsdeck": [
+      {
+        "id": "WR01",
+        "deck": "Weltreaktionsdeck",
+        "name": "Leichte Erschütterung",
+        "timing": "Welt-Tick",
+        "text": "Weltenzorn +1. Wenn Weltenzorn bereits ≥ 20 ist, zusätzlich Aetherkorruption +1.",
+        "effect": {},
+        "tags": [
+          "Welt"
+        ]
+      },
+      {
+        "id": "WR02",
+        "deck": "Weltreaktionsdeck",
+        "name": "Gute Ernte",
+        "timing": "Welt-Tick",
+        "text": "Alle Fraktionen mit mindestens 1 kontrollierter Ebene erhalten 1 Nahrung.",
+        "effect": {},
+        "tags": [
+          "Produktion"
+        ]
+      },
+      {
+        "id": "WR03",
+        "deck": "Weltreaktionsdeck",
+        "name": "Handelswind",
+        "timing": "Welt-Tick",
+        "text": "Wirtschaft +2. Tidenrat erhält 1 Gold, falls im Spiel.",
+        "effect": {
+          "world_delta": {
+            "Wirtschaft": 2
+          }
+        },
+        "tags": [
+          "Handel"
+        ]
+      },
+      {
+        "id": "WR04",
+        "deck": "Weltreaktionsdeck",
+        "name": "Nebelzug",
+        "timing": "Welt-Tick",
+        "text": "Alle Schleierquellen produzieren in der nächsten Produktion +1 Aether.",
+        "effect": {},
+        "tags": [
+          "Aether"
+        ]
+      },
+      {
+        "id": "WR05",
+        "deck": "Weltreaktionsdeck",
+        "name": "Waldatem",
+        "timing": "Welt-Tick",
+        "text": "Naturgleichgewicht +2. Wildklinge erhält 1 SP, wenn sie diese Runde Natur geschützt hat.",
+        "effect": {
+          "world_delta": {
+            "Naturgleichgewicht": 2
+          }
+        },
+        "tags": [
+          "Natur"
+        ]
+      },
+      {
+        "id": "WR06",
+        "deck": "Weltreaktionsdeck",
+        "name": "Grenzkonflikt",
+        "timing": "Welt-Tick",
+        "text": "Kriegsdruck +2. Bei Kriegsdruck ≥ 10 verliert jede Fraktion 1 zufällige Basisressource.",
+        "effect": {
+          "world_delta": {
+            "Kriegsdruck": 2
+          }
+        },
+        "tags": [
+          "Krieg"
+        ]
+      },
+      {
+        "id": "WR07",
+        "deck": "Weltreaktionsdeck",
+        "name": "Aethersturm",
+        "timing": "Welt-Tick",
+        "text": "Aetherkorruption +2. Jede überladene Aetherwunde erzeugt zusätzlich Weltenzorn +1.",
+        "effect": {
+          "world_delta": {
+            "Aetherkorruption": 2
+          }
+        },
+        "tags": [
+          "Aether"
+        ]
+      },
+      {
+        "id": "WR08",
+        "deck": "Weltreaktionsdeck",
+        "name": "Stille Runde",
+        "timing": "Welt-Tick",
+        "text": "Keine Katastrophe in dieser Runde, falls Stabilität ≥ 50.",
+        "effect": {},
+        "tags": [
+          "Stabilität"
+        ]
+      },
+      {
+        "id": "WR09",
+        "deck": "Weltreaktionsdeck",
+        "name": "Steinschlag",
+        "timing": "Welt-Tick",
+        "text": "Jede Fraktion mit kontrolliertem Gebirge erhält 1 Stein.",
+        "effect": {},
+        "tags": [
+          "Gebirge"
+        ]
+      },
+      {
+        "id": "WR10",
+        "deck": "Weltreaktionsdeck",
+        "name": "Ascheregen",
+        "timing": "Welt-Tick",
+        "text": "Aschefelder produzieren nächste Runde nicht. Grauasche ignoriert diesen Effekt auf 1 Aschefeld.",
+        "effect": {},
+        "tags": [
+          "Asche"
+        ]
+      },
+      {
+        "id": "WR11",
+        "deck": "Weltreaktionsdeck",
+        "name": "Marktfrieden",
+        "timing": "Welt-Tick",
+        "text": "Wenn in dieser Runde ein Handelsabkommen geschlossen wurde: Stabilität +1 und Wirtschaft +1.",
+        "effect": {},
+        "tags": [
+          "Handel",
+          "Stabilität"
+        ]
+      },
+      {
+        "id": "WR12",
+        "deck": "Weltreaktionsdeck",
+        "name": "Rissflimmern",
+        "timing": "Welt-Tick",
+        "text": "Der nächste Risiko-Wurf erhält -1. Minimum 1.",
+        "effect": {},
+        "tags": [
+          "Aether",
+          "Risiko"
+        ]
+      },
+      {
+        "id": "WR13",
+        "deck": "Weltreaktionsdeck",
+        "name": "Aufbegehren",
+        "timing": "Welt-Tick",
+        "text": "Fraktion mit den meisten SP verliert 1 Ressource. Bei Gleichstand keine Wirkung.",
+        "effect": {},
+        "tags": [
+          "Konflikt"
+        ]
+      },
+      {
+        "id": "WR14",
+        "deck": "Weltreaktionsdeck",
+        "name": "Heilender Regen",
+        "timing": "Welt-Tick",
+        "text": "Aetherkorruption -1 und Naturgleichgewicht +1.",
+        "effect": {
+          "world_delta": {
+            "Aetherkorruption": -1,
+            "Naturgleichgewicht": 1
+          }
+        },
+        "tags": [
+          "Welt"
+        ]
+      },
+      {
+        "id": "WR15",
+        "deck": "Weltreaktionsdeck",
+        "name": "Schwelender Zorn",
+        "timing": "Welt-Tick",
+        "text": "Wenn Weltenzorn ≥ 30: Katastrophenprüfung sofort. Sonst Weltenzorn +1.",
+        "effect": {},
+        "tags": [
+          "Weltenzorn"
+        ]
+      }
+    ],
+    "Taktikdeck": [
+      {
+        "id": "TA01",
+        "deck": "Taktikdeck",
+        "name": "Flankenangriff",
+        "timing": "Kampf",
+        "text": "Angreifer erhält +1 Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA02",
+        "deck": "Taktikdeck",
+        "name": "Schildwall",
+        "timing": "Kampf",
+        "text": "Verteidiger erhält +1 Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA03",
+        "deck": "Taktikdeck",
+        "name": "Rückzug",
+        "timing": "Kampf",
+        "text": "Nach verlorenem Kampf darf eine Einheit auf ein angrenzendes eigenes Feld zurückweichen statt entfernt zu werden.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA04",
+        "deck": "Taktikdeck",
+        "name": "Überraschungszug",
+        "timing": "Aktion",
+        "text": "Bewege eine Einheit vor einem Angriff 1 zusätzliches Hexfeld.",
+        "effect": {},
+        "tags": [
+          "Bewegung",
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA05",
+        "deck": "Taktikdeck",
+        "name": "Versorgungszug",
+        "timing": "Sofort",
+        "text": "Erhalte 1 Nahrung oder 1 Holz.",
+        "effect": {},
+        "tags": [
+          "Ressource"
+        ]
+      },
+      {
+        "id": "TA06",
+        "deck": "Taktikdeck",
+        "name": "Belagerung",
+        "timing": "Kampf",
+        "text": "Gegen Gebäude erhältst du +1 Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA07",
+        "deck": "Taktikdeck",
+        "name": "Späher",
+        "timing": "Sofort",
+        "text": "Sieh dir eine zufällige Handkarte eines Gegners an oder die oberste Karte eines Decks.",
+        "effect": {},
+        "tags": [
+          "Information"
+        ]
+      },
+      {
+        "id": "TA08",
+        "deck": "Taktikdeck",
+        "name": "Verstärkung",
+        "timing": "Reaktion",
+        "text": "Wenn eine eigene Einheit entfernt würde, zahle 1 Nahrung, um sie in deiner Heimat neu zu platzieren.",
+        "effect": {},
+        "tags": [
+          "Einheit"
+        ]
+      },
+      {
+        "id": "TA09",
+        "deck": "Taktikdeck",
+        "name": "Günstiger Wind",
+        "timing": "Aktion",
+        "text": "Eine Küstenbewegung oder ein Handelsabkommen kostet 0 AP.",
+        "effect": {},
+        "tags": [
+          "Küste",
+          "Handel"
+        ]
+      },
+      {
+        "id": "TA10",
+        "deck": "Taktikdeck",
+        "name": "Steinwurf",
+        "timing": "Kampf",
+        "text": "Auf Gebirge oder Asche erhältst du +1 Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA11",
+        "deck": "Taktikdeck",
+        "name": "Nebelmanöver",
+        "timing": "Kampf",
+        "text": "Bei Kampf auf Schleierquelle oder Aetherwunde darfst du deinen W8-Wurf neu würfeln.",
+        "effect": {},
+        "tags": [
+          "Kampf",
+          "Aether"
+        ]
+      },
+      {
+        "id": "TA12",
+        "deck": "Taktikdeck",
+        "name": "Blockade",
+        "timing": "Aktion",
+        "text": "Wähle ein angrenzendes gegnerisches Produktionsfeld. Es produziert nächste Produktion nicht.",
+        "effect": {},
+        "tags": [
+          "Kontrolle"
+        ]
+      },
+      {
+        "id": "TA13",
+        "deck": "Taktikdeck",
+        "name": "Geländevorteil",
+        "timing": "Kampf",
+        "text": "Wenn du auf deinem Heimatgelände kämpfst, erhältst du +1 Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      },
+      {
+        "id": "TA14",
+        "deck": "Taktikdeck",
+        "name": "Notlager",
+        "timing": "Sofort",
+        "text": "Baue eine Siedlung mit 1 Ressource weniger, wenn du höchstens 1 Siedlung hast.",
+        "effect": {},
+        "tags": [
+          "Bau"
+        ]
+      },
+      {
+        "id": "TA15",
+        "deck": "Taktikdeck",
+        "name": "Letzter Stand",
+        "timing": "Kampf",
+        "text": "Wenn du weniger SP als dein Gegner hast, erhältst du +2 Kampf in diesem Kampf.",
+        "effect": {},
+        "tags": [
+          "Kampf"
+        ]
+      }
+    ]
+  }
+}

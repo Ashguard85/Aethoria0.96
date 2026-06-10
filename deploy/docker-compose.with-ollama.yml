@@ -1,0 +1,59 @@
+name: ${STACK_NAME:-aethoria}
+
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: ${FRONTEND_IMAGE:-aethoria/frontend:v0.96}
+    container_name: ${FRONTEND_CONTAINER_NAME:-aethoria-frontend}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_BIND_IP:-0.0.0.0}:${FRONTEND_PORT:-3450}:80"
+    networks:
+      - aethoria_net
+
+  api:
+    build:
+      context: ..
+      dockerfile: ./api/Dockerfile
+    image: ${API_IMAGE:-aethoria/api:v0.96}
+    container_name: ${API_CONTAINER_NAME:-aethoria-api}
+    restart: unless-stopped
+    environment:
+      AETHORIA_VERSION: "0.96"
+      AETHORIA_DB_PATH: "/data/${AETHORIA_DB_FILE:-aethoria.sqlite}"
+      AETHORIA_CANON_DIR: "/app/data"
+      OLLAMA_INTERNAL_URL: "http://ollama:11434"
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-llama3.1:8b}"
+      OLLAMA_TIMEOUT: "${OLLAMA_TIMEOUT:-60}"
+      CORS_ALLOW_ORIGINS: "${CORS_ALLOW_ORIGINS:-*}"
+      TZ: "${TZ:-Europe/Zurich}"
+    volumes:
+      - "${AETHORIA_DATA_DIR:-../runtime/aethoria-data}:/data"
+    ports:
+      - "${API_BIND_IP:-0.0.0.0}:${API_PORT:-3451}:8000"
+    networks:
+      - aethoria_net
+    depends_on:
+      ollama:
+        condition: service_started
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ${OLLAMA_CONTAINER_NAME:-aethoria-ollama}
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_BIND_IP:-127.0.0.1}:${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - "${OLLAMA_DATA_DIR:-../runtime/ollama-data}:/root/.ollama"
+    networks:
+      - aethoria_net
+
+networks:
+  aethoria_net:
+    name: ${AETHORIA_NETWORK_NAME:-aethoria_net}
+    driver: bridge

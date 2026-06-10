@@ -1,0 +1,1029 @@
+{
+  "version": "v0.96",
+  "rules_version": "v0.96",
+  "language": "de",
+  "resources": [
+    "Nahrung",
+    "Holz",
+    "Stein",
+    "Gold",
+    "Aether"
+  ],
+  "basis_resources": [
+    "Nahrung",
+    "Holz",
+    "Stein",
+    "Gold"
+  ],
+  "factions": [
+    {
+      "id": "eisengilde",
+      "name": "Eisengilde",
+      "icon": "⚒",
+      "home_terrain": "Gebirge",
+      "start_resources": {
+        "Nahrung": 1,
+        "Holz": 1,
+        "Stein": 2,
+        "Gold": 0,
+        "Aether": 0
+      },
+      "focus": [
+        "Bau",
+        "Verteidigung",
+        "Technik"
+      ],
+      "summary": "Robuste Fraktion für Ausbau und befestigte Positionen.",
+      "passives": [],
+      "bonuses": [
+        {
+          "id": "eisengilde_festung_rabatt",
+          "category": "Wirtschaft",
+          "text": "Die erste Festung in diesem Spiel kostet 1 Stein weniger.",
+          "trigger": "build_fortress",
+          "frequency": "once_per_game",
+          "effect": {
+            "cost_modifier": {
+              "Stein": -1
+            }
+          }
+        },
+        {
+          "id": "eisengilde_verteidigung",
+          "category": "Militär",
+          "text": "+1 Kampf bei Verteidigung von Gebirge oder Festung.",
+          "trigger": "combat_defense",
+          "frequency": "always",
+          "condition": {
+            "any": [
+              {
+                "terrain": "Gebirge"
+              },
+              {
+                "defending_structure": "Festung"
+              }
+            ]
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "eisengilde_stabilitaet",
+          "category": "Welt",
+          "text": "Beim Bau einer Festung 1 Stabilität erhalten.",
+          "trigger": "build_fortress",
+          "frequency": "always",
+          "effect": {
+            "world_delta": {
+              "Stabilität": 1
+            }
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "verteidigungsring",
+        "name": "Verteidigungsring",
+        "text": "Einmal pro Runde 1 Verteidigungsring aktivieren: Eine eigene Siedlung erhält in dieser Runde +1 Verteidigung.",
+        "cost": {
+          "AP": 1,
+          "Stein": 1
+        },
+        "frequency": "once_per_round",
+        "target": "own_settlement",
+        "effect": {
+          "status": "defense_ring",
+          "defense_bonus": 1,
+          "duration": "current_round"
+        }
+      },
+      "quote": "Stein trägt Erinnerung, Stahl sichert Zukunft."
+    },
+    {
+      "id": "tidenrat",
+      "name": "Tidenrat",
+      "icon": "🌊",
+      "home_terrain": "Küste",
+      "start_resources": {
+        "Nahrung": 1,
+        "Holz": 1,
+        "Stein": 0,
+        "Gold": 1,
+        "Aether": 0
+      },
+      "focus": [
+        "Handel",
+        "Flexibilität",
+        "Küste"
+      ],
+      "summary": "Stark im Handel und bei flexibler Ressourcenplanung.",
+      "passives": [],
+      "bonuses": [
+        {
+          "id": "tidenrat_abkommen_0ap",
+          "category": "Wirtschaft",
+          "text": "Das erste Handelsabkommen jeder Runde kostet 0 AP.",
+          "trigger": "trade_agreement",
+          "frequency": "once_per_round",
+          "effect": {
+            "ap_cost_override": 0
+          }
+        },
+        {
+          "id": "tidenrat_kuestenkampf",
+          "category": "Militär",
+          "text": "+1 Kampf auf Küstenfeldern.",
+          "trigger": "combat",
+          "frequency": "always",
+          "condition": {
+            "terrain": "Küste"
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "tidenrat_wirtschaft",
+          "category": "Welt",
+          "text": "Beim Abschließen eines Handelsabkommens +1 Wirtschaft.",
+          "trigger": "trade_agreement",
+          "frequency": "always",
+          "effect": {
+            "world_delta": {
+              "Wirtschaft": 1
+            }
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "markt_oeffnen",
+        "name": "Markt öffnen",
+        "text": "Einmal pro Runde einen Markt öffnen: Tausche 1 eigene Ressource gegen 1 beliebige Basisressource.",
+        "cost": {
+          "AP": 1
+        },
+        "frequency": "once_per_round",
+        "effect": {
+          "exchange": {
+            "pay": "any_owned_resource",
+            "gain": "any_basis_resource"
+          }
+        }
+      },
+      "quote": "Wo die Gezeiten handeln, wächst Macht."
+    },
+    {
+      "id": "nebelwacht",
+      "name": "Nebelwacht",
+      "icon": "🌫",
+      "home_terrain": "Schleierquelle",
+      "start_resources": {
+        "Nahrung": 1,
+        "Holz": 1,
+        "Stein": 0,
+        "Gold": 1,
+        "Aether": 1
+      },
+      "focus": [
+        "Aether",
+        "Risiko",
+        "Kontrolle"
+      ],
+      "summary": "Aether-Spezialist mit Risikokontrolle.",
+      "passives": [
+        {
+          "id": "nebelwacht_freies_anzapfen",
+          "text": "Einmal pro Runde kostet die Aktion Aether anzapfen 0 AP statt 1 AP. Der Risiko-Wurf bleibt bestehen.",
+          "trigger": "tap_aether",
+          "frequency": "once_per_round",
+          "effect": {
+            "ap_cost_override": 0
+          }
+        },
+        {
+          "id": "nebelwacht_reiner_sog",
+          "text": "Bei Risiko-Wurf 6 darf Nebelwacht einmal pro Runde die Grund-Korruption dieser Aether-Aktion verhindern.",
+          "trigger": "aether_risk_roll_6",
+          "frequency": "once_per_round",
+          "effect": {
+            "prevent_base_corruption": 1
+          }
+        }
+      ],
+      "bonuses": [
+        {
+          "id": "nebelwacht_aether_bonus",
+          "category": "Wirtschaft",
+          "text": "Die erste Aether-Aktion jeder Runde erzeugt 1 zusätzlichen Aether.",
+          "trigger": "aether_action",
+          "frequency": "once_per_round",
+          "effect": {
+            "resource_delta": {
+              "Aether": 1
+            }
+          }
+        },
+        {
+          "id": "nebelwacht_angriff",
+          "category": "Militär",
+          "text": "+1 Kampf beim Angriff aus einer Schleierquelle oder Aetherwunde.",
+          "trigger": "combat_attack",
+          "frequency": "always",
+          "condition": {
+            "origin_any": [
+              "Schleierquelle",
+              "Aetherwunde"
+            ]
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "nebelwacht_reinigung",
+          "category": "Welt",
+          "text": "Beim Reinigen einer Aetherwunde 1 Stabilität erhalten.",
+          "trigger": "cleanse_aether_wound",
+          "frequency": "always",
+          "effect": {
+            "world_delta": {
+              "Stabilität": 1
+            }
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "schleierblick",
+        "name": "Schleierblick",
+        "text": "Einmal pro Runde Schleierblick: Sieh die oberste Weltreaktionskarte an oder wirf einen Risiko-Wurf neu.",
+        "cost": {
+          "AP": 1
+        },
+        "frequency": "once_per_round",
+        "effect": {
+          "choose_one": [
+            "peek_top_world_reaction_card",
+            "reroll_risk_roll"
+          ]
+        }
+      },
+      "quote": "Im Schleier sehen wir, was andere fürchten."
+    },
+    {
+      "id": "sonnenbund",
+      "name": "Sonnenbund",
+      "icon": "☀",
+      "home_terrain": "Ebene",
+      "start_resources": {
+        "Nahrung": 2,
+        "Holz": 2,
+        "Stein": 0,
+        "Gold": 0,
+        "Aether": 0
+      },
+      "focus": [
+        "Stabilität",
+        "Reinigung",
+        "Versorgung"
+      ],
+      "summary": "Stark bei Stabilisierung, Schutz und Reinigung.",
+      "passives": [],
+      "bonuses": [
+        {
+          "id": "sonnenbund_reinigung_0ap",
+          "category": "Wirtschaft",
+          "text": "Die erste Reinigungsaktion jeder Runde kostet 0 AP.",
+          "trigger": "cleanse_aether_wound",
+          "frequency": "once_per_round",
+          "effect": {
+            "ap_cost_override": 0
+          }
+        },
+        {
+          "id": "sonnenbund_verteidigung",
+          "category": "Militär",
+          "text": "+1 Kampf bei Verteidigung von Ebene oder Siedlung.",
+          "trigger": "combat_defense",
+          "frequency": "always",
+          "condition": {
+            "any": [
+              {
+                "terrain": "Ebene"
+              },
+              {
+                "defending_structure": "Siedlung"
+              }
+            ]
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "sonnenbund_naturschutz",
+          "category": "Welt",
+          "text": "Beim Schützen der Natur +1 zusätzliche Stabilität.",
+          "trigger": "protect_nature",
+          "frequency": "always",
+          "effect": {
+            "world_delta": {
+              "Stabilität": 1
+            }
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "schutzsegen",
+        "name": "Schutzsegen",
+        "text": "Einmal pro Runde Schutzsegen: Wähle 1 eigenes Feld. Es kann in dieser Runde nicht verflucht werden.",
+        "cost": {
+          "AP": 1
+        },
+        "frequency": "once_per_round",
+        "target": "own_hex",
+        "effect": {
+          "status": "curse_protected",
+          "duration": "current_round"
+        }
+      },
+      "quote": "Licht ordnet, heilt und bewahrt."
+    },
+    {
+      "id": "wildklinge",
+      "name": "Wildklinge",
+      "icon": "🐺",
+      "home_terrain": "Wald",
+      "start_resources": {
+        "Nahrung": 1,
+        "Holz": 2,
+        "Stein": 0,
+        "Gold": 1,
+        "Aether": 0
+      },
+      "focus": [
+        "Natur",
+        "Bewegung",
+        "Kontrolle"
+      ],
+      "summary": "Schnell im Wald und stark bei Naturkontrolle.",
+      "passives": [
+        {
+          "id": "wildklinge_waldbewegung",
+          "text": "Bewegung durch Wald: bis zu 3 Hexfelder statt 2.",
+          "trigger": "move",
+          "frequency": "always",
+          "condition": {
+            "path_contains": "Wald"
+          },
+          "effect": {
+            "movement_range": 3
+          }
+        }
+      ],
+      "bonuses": [
+        {
+          "id": "wildklinge_waldbewegung_0ap",
+          "category": "Wirtschaft",
+          "text": "Die erste Bewegung im Wald jeder Runde kostet 0 AP.",
+          "trigger": "move",
+          "frequency": "once_per_round",
+          "condition": {
+            "path_contains": "Wald"
+          },
+          "effect": {
+            "ap_cost_override": 0
+          }
+        },
+        {
+          "id": "wildklinge_waldkampf",
+          "category": "Militär",
+          "text": "+1 Kampf auf Waldfeldern.",
+          "trigger": "combat",
+          "frequency": "always",
+          "condition": {
+            "terrain": "Wald"
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "wildklinge_naturschutz_sp",
+          "category": "Welt",
+          "text": "Beim Schützen der Natur 1 Siegpunkt erhalten.",
+          "trigger": "protect_nature",
+          "frequency": "always",
+          "effect": {
+            "score_delta": 1
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "pfad_der_jagd",
+        "name": "Pfad der Jagd",
+        "text": "Einmal pro Runde Pfad der Jagd: Bewege 1 eigene Einheit um 1 zusätzliches Feld.",
+        "cost": {
+          "AP": 1
+        },
+        "frequency": "once_per_round",
+        "target": "own_unit",
+        "effect": {
+          "extra_movement": 1
+        }
+      },
+      "quote": "Wer mit dem Wald geht, herrscht ohne Mauern."
+    },
+    {
+      "id": "grauasche",
+      "name": "Grauasche",
+      "icon": "💀",
+      "home_terrain": "Asche",
+      "start_resources": {
+        "Nahrung": 1,
+        "Holz": 1,
+        "Stein": 2,
+        "Gold": 0,
+        "Aether": 0
+      },
+      "focus": [
+        "Korruption",
+        "Zerstörung",
+        "Asche"
+      ],
+      "summary": "Aggressiver Stil mit hohem Risiko und starkem Druck auf die Welt.",
+      "passives": [],
+      "bonuses": [
+        {
+          "id": "grauasche_zorn_umwandeln",
+          "category": "Wirtschaft",
+          "text": "Einmal pro Spiel 5 Weltenzorn in 1 Siegpunkt umwandeln.",
+          "trigger": "manual",
+          "frequency": "once_per_game",
+          "condition": {
+            "world_min": {
+              "Weltenzorn": 5
+            }
+          },
+          "effect": {
+            "world_delta": {
+              "Weltenzorn": -5
+            },
+            "score_delta": 1
+          }
+        },
+        {
+          "id": "grauasche_aschekampf",
+          "category": "Militär",
+          "text": "+1 Kampf auf Aschefeldern.",
+          "trigger": "combat",
+          "frequency": "always",
+          "condition": {
+            "terrain": "Asche"
+          },
+          "effect": {
+            "combat_bonus": 1
+          }
+        },
+        {
+          "id": "grauasche_ueberladung_sp",
+          "category": "Welt",
+          "text": "Beim Überladen einer Aetherwunde +1 zusätzlicher Siegpunkt.",
+          "trigger": "overload_aether_wound",
+          "frequency": "always",
+          "effect": {
+            "score_delta": 1
+          }
+        }
+      ],
+      "special_ability": {
+        "id": "feld_verfluchen",
+        "name": "Feld verfluchen",
+        "text": "Einmal pro Runde 1 benachbartes Feld verfluchen: Es produziert in dieser Runde keine Ressourcen.",
+        "cost": {
+          "AP": 1
+        },
+        "frequency": "once_per_round",
+        "target": "adjacent_hex",
+        "effect": {
+          "status": "cursed_no_production",
+          "duration": "current_round"
+        },
+        "world_delta": {
+          "Weltenzorn": 1
+        }
+      },
+      "quote": "Was die Welt zerstört, formen wir neu."
+    }
+  ],
+  "terrain": {
+    "Ebene": {
+      "produces": [
+        "Nahrung"
+      ],
+      "kind": "terrain"
+    },
+    "Wald": {
+      "produces": [
+        "Holz"
+      ],
+      "kind": "terrain"
+    },
+    "Gebirge": {
+      "produces": [
+        "Stein"
+      ],
+      "kind": "terrain"
+    },
+    "Küste": {
+      "produces": [
+        "Nahrung",
+        "Gold"
+      ],
+      "kind": "terrain",
+      "production_choice": true
+    },
+    "Asche": {
+      "produces": [
+        "Stein",
+        "Aether"
+      ],
+      "kind": "terrain",
+      "production_choice": true
+    },
+    "Ruinen": {
+      "produces": [],
+      "kind": "special",
+      "notes": "Neutraler Schlüsselort; kann über Szenarien/Karten genutzt werden."
+    },
+    "Fluss": {
+      "produces": [],
+      "kind": "special",
+      "notes": "Bewegungs-/Routenfeld; im Prototyp neutral behandeln, keine freie Zusatzregel erfinden."
+    },
+    "Aetherwunde": {
+      "produces": [
+        "Aether"
+      ],
+      "kind": "aether_site",
+      "levels": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "Schleierquelle": {
+      "produces": [
+        "Aether"
+      ],
+      "kind": "aether_site",
+      "levels": [
+        0
+      ],
+      "cannot_upgrade": true
+    }
+  },
+  "board": {
+    "total_hexes": 63,
+    "home_plates": {
+      "count": 6,
+      "hexes_each": 3,
+      "total_hexes": 18
+    },
+    "neutral_hexes": 45,
+    "neutral_distribution": {
+      "Ebene": 6,
+      "Wald": 8,
+      "Gebirge": 7,
+      "Küste": 5,
+      "Asche": 3,
+      "Ruinen": 5,
+      "Fluss": 4,
+      "Aetherwunde": 4,
+      "Schleierquelle": 3
+    }
+  },
+  "actions": [
+    {
+      "id": "move",
+      "name": "Bewegen",
+      "cost": {
+        "AP": 1
+      },
+      "text": "Eine Einheit bis zu 2 Hexfelder bewegen. Wildklinge im Wald bis zu 3 Hexfelder."
+    },
+    {
+      "id": "build_settlement",
+      "name": "Siedlung bauen",
+      "cost": {
+        "AP": 1,
+        "Holz": 1,
+        "Nahrung": 1
+      },
+      "score_delta": 1,
+      "text": "Errichte eine Siedlung auf kontrolliertem gültigem Feld."
+    },
+    {
+      "id": "recruit_unit",
+      "name": "Einheit rekrutieren",
+      "cost": {
+        "AP": 1,
+        "Nahrung": 1,
+        "Gold": 1
+      },
+      "text": "Platziere 1 Einheit bei eigener Siedlung, Stadt oder Heimat."
+    },
+    {
+      "id": "build_fortress",
+      "name": "Festung bauen",
+      "cost": {
+        "AP": 1,
+        "Stein": 2,
+        "Holz": 1
+      },
+      "score_delta": 1,
+      "text": "Errichte eine Festung auf gültigem kontrolliertem Feld."
+    },
+    {
+      "id": "upgrade_city",
+      "name": "Stadt ausbauen",
+      "cost": {
+        "AP": 1,
+        "Stein": 2,
+        "Gold": 1
+      },
+      "score_delta": 2,
+      "text": "Werte eine eigene Siedlung zur Stadt auf."
+    },
+    {
+      "id": "attack",
+      "name": "Angreifen",
+      "cost": {
+        "AP": 1
+      },
+      "world_delta": {
+        "Kriegsdruck": 1
+      },
+      "roll": "W8",
+      "text": "Führe Kampf mit W8 + Boni aus. Gleichstand hält Verteidigung."
+    },
+    {
+      "id": "tap_aether",
+      "name": "Aether anzapfen",
+      "cost": {
+        "AP": 1
+      },
+      "gain_choice": [
+        {
+          "basis_resources": 2
+        },
+        {
+          "Aether": 1
+        }
+      ],
+      "world_delta": {
+        "Aetherkorruption": 1
+      },
+      "risk_roll": "W6",
+      "text": "Gewinne 2 Basisressourcen oder 1 Aether. Danach Risiko-Wurf anwenden."
+    },
+    {
+      "id": "secure_aether_wound",
+      "name": "Aetherwunde sichern",
+      "cost": {
+        "AP": 1
+      },
+      "text": "Setze eine eigene/eroberte Aetherwunde auf Stufe 1."
+    },
+    {
+      "id": "upgrade_aether_wound",
+      "name": "Aetherwunde ausbauen",
+      "cost": {
+        "AP": 1,
+        "Stein": 2,
+        "Aether": 1
+      },
+      "score_delta": 1,
+      "text": "Eigene Stufe-1-Aetherwunde auf Stufe 2."
+    },
+    {
+      "id": "overload_aether_wound",
+      "name": "Aetherwunde überladen",
+      "cost": {
+        "AP": 1,
+        "Aether": 1
+      },
+      "score_delta": 1,
+      "world_delta": {
+        "Aetherkorruption": 1,
+        "Weltenzorn": 2
+      },
+      "text": "Eigene Stufe-2-Aetherwunde auf Stufe 3."
+    },
+    {
+      "id": "cleanse_aether_wound",
+      "name": "Aetherwunde reinigen",
+      "cost": {
+        "AP": 1,
+        "Nahrung": 1,
+        "Gold": 1
+      },
+      "world_delta": {
+        "Aetherkorruption": -2,
+        "Weltenzorn": -1
+      },
+      "text": "Eigene oder neutrale Stufe-3-Aetherwunde reinigen. Gegnerische Wunden müssen zuerst erobert werden."
+    },
+    {
+      "id": "protect_nature",
+      "name": "Natur schützen",
+      "cost": {
+        "AP": 1
+      },
+      "world_delta": {
+        "Naturgleichgewicht": 2,
+        "Stabilität": 2,
+        "Weltenzorn": -1
+      },
+      "frequency": "once_per_player_round",
+      "text": "Natur +2, Stabilität +2, Weltenzorn −1. Weltenzorn-Senkung durch Naturschutz höchstens 3 pro Runde gesamt."
+    },
+    {
+      "id": "trade_once",
+      "name": "Einmaliger Handel",
+      "cost": {
+        "AP": 0
+      },
+      "text": "Freier Ressourcentausch zwischen Spielern. Keine SP, keine Weltwerte."
+    },
+    {
+      "id": "trade_agreement",
+      "name": "Handelsabkommen",
+      "cost": {
+        "AP": 1
+      },
+      "world_delta": {
+        "Wirtschaft": 1,
+        "Stabilität": 1
+      },
+      "conditional_score": {
+        "condition": "Kriegsdruck < 5",
+        "score_delta": 1
+      },
+      "text": "Formelles Abkommen. +1 SP nur beim Abschluss und nur wenn Kriegsdruck < 5."
+    }
+  ],
+  "risk_table": {
+    "die": "W6",
+    "applies_to": "tap_aether",
+    "base_effect": {
+      "Aetherkorruption": 1
+    },
+    "results": [
+      {
+        "roll": 1,
+        "name": "Aetherbrand",
+        "extra_effect": {
+          "Aetherkorruption": 1,
+          "Weltenzorn": 2
+        },
+        "text": "Zusätzlich Aetherkorruption +1 und Weltenzorn +2."
+      },
+      {
+        "roll": 2,
+        "name": "Flüsterriss",
+        "extra_effect": {
+          "Weltenzorn": 1
+        },
+        "text": "Zusätzlich Weltenzorn +1."
+      },
+      {
+        "roll": 3,
+        "name": "Unruhiger Sog",
+        "extra_effect": {},
+        "text": "Keine Zusatzfolge."
+      },
+      {
+        "roll": 4,
+        "name": "Unruhiger Sog",
+        "extra_effect": {},
+        "text": "Keine Zusatzfolge."
+      },
+      {
+        "roll": 5,
+        "name": "Klarer Fluss",
+        "extra_effect": {},
+        "text": "Keine Zusatzfolge."
+      },
+      {
+        "roll": 6,
+        "name": "Reiner Sog",
+        "extra_effect": {},
+        "text": "Keine Zusatzfolge. Nebelwacht darf 1×/Runde die Grund-Korruption dieser Aether-Aktion verhindern."
+      }
+    ]
+  },
+  "world": {
+    "initial": {
+      "Stabilität": 100,
+      "Aetherkorruption": 0,
+      "Kriegsdruck": 0,
+      "Wirtschaft": 50,
+      "Naturgleichgewicht": 50,
+      "Weltenzorn": 0
+    },
+    "ranges": {
+      "Stabilität": [
+        0,
+        100
+      ],
+      "Aetherkorruption": [
+        0,
+        50
+      ],
+      "Kriegsdruck": [
+        0,
+        20
+      ],
+      "Wirtschaft": [
+        0,
+        100
+      ],
+      "Naturgleichgewicht": [
+        0,
+        100
+      ],
+      "Weltenzorn": [
+        0,
+        50
+      ]
+    },
+    "world_mood_by_stability": [
+      {
+        "name": "Blühend",
+        "range": [
+          80,
+          100
+        ],
+        "effect": "Alle Fraktionen erhalten am Rundenbeginn +1 Basisressource nach Wahl."
+      },
+      {
+        "name": "Stabil",
+        "range": [
+          60,
+          79
+        ],
+        "effect": "Kein Effekt."
+      },
+      {
+        "name": "Angespannt",
+        "range": [
+          40,
+          59
+        ],
+        "effect": "Handelsabkommen kosten +1 beliebige Basisressource."
+      },
+      {
+        "name": "Unruhig",
+        "range": [
+          20,
+          39
+        ],
+        "effect": "Alle verlieren am Rundenende 1 Ressource, falls möglich."
+      },
+      {
+        "name": "Krisenhaft",
+        "range": [
+          10,
+          19
+        ],
+        "effect": "Katastrophen erhalten +1 Stärke."
+      },
+      {
+        "name": "Chaotisch",
+        "range": [
+          0,
+          9
+        ],
+        "effect": "Jede Runde Katastrophenprüfung."
+      }
+    ],
+    "catastrophe_check": {
+      "phase": "end_of_round",
+      "conditions": [
+        "Weltenzorn >= 30",
+        "Stabilität <= 9",
+        "Aetherkorruption >= 40",
+        "Kriegsdruck >= 18",
+        "Wirtschaft <= 14",
+        "Naturgleichgewicht <= 14",
+        "city_destroyed_this_round == true",
+        "aether_wound_overloaded_this_round == true"
+      ],
+      "die": "W6",
+      "base_trigger": "Katastrophe bei 1. Schwellen können die Erfolgsrange bis maximal 1–5 erhöhen.",
+      "dominant_value_mapping": {
+        "Aetherkorruption": "Aetherkatastrophe",
+        "Kriegsdruck": "Kriegskatastrophe",
+        "Wirtschaft_low": "Wirtschaftskatastrophe",
+        "Naturgleichgewicht_low": "Naturkatastrophe",
+        "Weltenzorn": "Weltzornkatastrophe",
+        "Stabilität_low": "Katastrophe nach höchstem Nebenwert"
+      }
+    }
+  },
+  "scoring": {
+    "rounds_default": 10,
+    "open_score_events": [
+      {
+        "id": "score_build_settlement",
+        "source": "Siedlung bauen",
+        "points": 1,
+        "timing": "immediate"
+      },
+      {
+        "id": "score_upgrade_city",
+        "source": "Stadt ausbauen",
+        "points": 2,
+        "timing": "immediate"
+      },
+      {
+        "id": "score_build_fortress",
+        "source": "Festung bauen",
+        "points": 1,
+        "timing": "immediate"
+      },
+      {
+        "id": "score_upgrade_aether_wound",
+        "source": "Aetherwunde ausbauen",
+        "points": 1,
+        "timing": "immediate"
+      },
+      {
+        "id": "score_overload_aether_wound",
+        "source": "Aetherwunde überladen",
+        "points": 1,
+        "timing": "immediate"
+      },
+      {
+        "id": "score_trade_agreement",
+        "source": "Handelsabkommen",
+        "points": 1,
+        "timing": "immediate",
+        "condition": "Kriegsdruck < 5"
+      },
+      {
+        "id": "score_aether_wound_end",
+        "source": "kontrollierte Aetherwunde",
+        "points": 1,
+        "timing": "end_of_round"
+      },
+      {
+        "id": "score_key_region",
+        "source": "Schlüsselgebiet kontrolliert",
+        "points": 1,
+        "timing": "end_of_round",
+        "condition": "mindestens 2 von 3 Hexfeldern"
+      },
+      {
+        "id": "score_central_region",
+        "source": "Zentralgebiet kontrolliert",
+        "points": 2,
+        "timing": "end_of_round",
+        "condition": "meiste kontrollierte Hexfelder von 7, kein Gleichstand"
+      }
+    ],
+    "endgame_score_events": [
+      {
+        "id": "score_secret_objective",
+        "source": "erfülltes Geheimziel",
+        "points": "gemäß Karte",
+        "timing": "endgame"
+      },
+      {
+        "id": "score_low_wrath_global",
+        "source": "Weltenzorn unter 10",
+        "points": 3,
+        "timing": "endgame",
+        "condition": "Weltenzorn < 10",
+        "recipient": "all_players"
+      }
+    ],
+    "tie_breakers": [
+      "weniger verursachter Weltschaden",
+      "höhere Stabilisierungsleistung",
+      "mehr kontrollierte Gebiete",
+      "mehr verbleibende Ressourcen"
+    ]
+  },
+  "version_policy": {
+    "visible_version": "AETHORIA Companion v0.96",
+    "forbidden_legacy_strings": [
+      "v0.9",
+      "v0.90",
+      "v0.92",
+      "v0.93 Kanon",
+      "Hexe"
+    ]
+  }
+}
